@@ -1,0 +1,12 @@
+{
+  "id": "DrawPeek",
+  "name": "抽牌预览 (Draw Peek)",
+  "author": "LocalDeveloper",
+  "description": "战斗中通过悬浮按钮查看下回合整组抽牌，可在 RitsuLib 模组设置中即时开关。",
+  "version": "1.2.1",
+  "min_game_version": "0.111.0",
+  "has_pck": false,
+  "has_dll": true,
+  "dependencies": [{ "id": "STS2-RitsuLib", "min_version": "0.6.9" }],
+  "affects_gameplay": false
+}

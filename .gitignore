@@ -1,0 +1,7 @@
+
+obj/
+dist/
+.vs/
+.tools/
+.inspect/
+.legacy/

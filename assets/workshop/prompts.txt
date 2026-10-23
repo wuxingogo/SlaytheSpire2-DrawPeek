@@ -1,0 +1,11 @@
+Generated with the built-in image_gen tool.
+
+Cover 1
+Use case: ads-marketing. Create a polished square Steam Workshop cover for the Slay the Spire 2 mod DrawPeek, which previews the next five drawn cards. Dark hand-painted fantasy deckbuilding aesthetic. Five ornate cards fan outward from a deck, their faces magically revealed by a luminous golden eye symbol floating above, subtle spire silhouette in smoky background. Strong readable silhouette at thumbnail size, dramatic amber gold and charcoal, restrained details. Large perfectly legible title text exactly "DRAW PEEK", small secondary text exactly "抽牌预览". No other text, no watermark, no official logo. One complete square cover.
+
+Cover 2
+Use case: ads-marketing. Create a polished square Steam Workshop cover for the Slay the Spire 2 mod DrawPeek. A mysterious arcane blue-violet eye gazes through a fan of five floating fantasy cards, with clear visual metaphor of seeing upcoming draws, deep ink background and painterly cyan spectral glow, elegant ornate card borders. Cohesive premium dark fantasy game illustration, bold simple composition legible as tiny thumbnail. Large title exactly "DRAW PEEK", subtitle exactly "抽牌预览". No other text or watermark, no official logo. One complete square cover.
+
+Cover 3
+Use case: ads-marketing. Create a polished square Steam Workshop cover for the Slay the Spire 2 mod DrawPeek, card draw preview and map reward foresight. Antique parchment fantasy divination composition, five red-and-gold cards prominently fanned over a subtle branching dungeon map, a golden eye sigil reveals the front card, warm ivory parchment with deep crimson and black ink, hand-painted woodcut-inspired dark roguelike aesthetic. Clear high contrast thumbnail composition. Large title exactly "DRAW PEEK", smaller subtitle exactly "抽牌预览". No other text, watermark or official logo. One complete square cover.
+

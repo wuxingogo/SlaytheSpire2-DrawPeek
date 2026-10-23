@@ -1,8 +1,8 @@
 param(
-    [string]$GameDir = 'G:\SteamLibrary\steamapps\common\Slay the Spire 2',
+    [string]$GameDir = 'E:\SteamLibrary\steamapps\common\Slay the Spire 2',
     [switch]$Install,
     [switch]$Launch,
-    [string]$RitsuLibDir = 'G:\SteamLibrary\steamapps\workshop\content\2868840\3747602295'
+    [string]$RitsuLibDir = 'E:\SteamLibrary\steamapps\workshop\content\2868840\3747602295'
 )
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path -LiteralPath (Join-Path $GameDir 'data_sts2_windows_x86_64\sts2.dll'))) {

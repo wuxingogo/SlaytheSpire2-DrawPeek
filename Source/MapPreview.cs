@@ -78,8 +78,12 @@ internal static class MapPreview
                 current.Position = new Vector2(Math.Clamp(current.Position.X, 12, Math.Max(12, bounds.X - current.Size.X - 12)),
                     Math.Clamp(current.Position.Y, 80, Math.Max(80, bounds.Y - current.Size.Y - 12)));
             }).CallDeferred();
+            string language = L10n.Language;
             var timer = new Godot.Timer { WaitTime = .2, Autostart = true };
-            timer.Timeout += () => { if (!Settings.Enabled || !point.IsVisibleInTree() || point.State != MapPointState.Travelable) Hide(point); };
+            timer.Timeout += () => {
+                if (!Settings.Enabled || !point.IsVisibleInTree() || point.State != MapPointState.Travelable) Hide(point);
+                else if (language != L10n.Language) Show(point);
+            };
             panel.AddChild(timer);
             ModEntry.Log("Map preview: " + text.Replace('\n', ' '));
             ModEntry.Log("Map preview state check: RNG, odds, relic pools and visited events unchanged.");
@@ -97,7 +101,7 @@ internal static class MapPreview
 
     private static string Predict(MapPoint point, Player player, RunState run)
     {
-        var lines = new List<string> { "下一节点 · 奖励预测", "" };
+        var lines = new List<string> { L10n.Text("下一节点 · 奖励预测", "Next node · Reward preview"), "" };
         RoomType type;
         if (point.PointType == MapPointType.Unknown)
         {
@@ -106,7 +110,7 @@ internal static class MapPreview
                 MonsterOdds = source.MonsterOdds, EliteOdds = source.EliteOdds,
                 TreasureOdds = source.TreasureOdds, ShopOdds = source.ShopOdds };
             type = odds.Roll(RunManager.BuildRoomTypeBlacklist(run.CurrentMapPointHistoryEntry, point.Children), run);
-            lines.Add("问号预计为：" + RoomName(type));
+            lines.Add(L10n.Text("问号预计为：", "Expected ? room: ") + RoomName(type));
         }
         else type = point.PointType switch {
             MapPointType.Monster => RoomType.Monster, MapPointType.Elite => RoomType.Elite,
@@ -128,7 +132,7 @@ internal static class MapPreview
                     var candidate = rooms.events[(rooms.eventsVisited + i) % rooms.events.Count];
                     if (candidate.IsAllowed(run) && !run.VisitedEventIds.Contains(candidate.Id)) next = candidate;
                 }
-                lines.Add(next == null ? "事件尚不可确定" : "事件：" + next.Title.GetFormattedText());
+                lines.Add(next == null ? L10n.Text("事件尚不可确定", "Event not yet determined") : L10n.Text("事件：", "Event: ") + next.Title.GetFormattedText());
                 break;
             case RoomType.Treasure:
                 var rng = new Rng(run.Rng.TreasureRoomRelics.ToSerializable());
@@ -136,12 +140,12 @@ internal static class MapPreview
                 foreach (var recipient in run.Players) {
                     if (!Hook.ShouldGenerateTreasure(run, recipient)) continue;
                     var relic = bag.PullFromFront(RelicFactory.RollRarity(rng), run) ?? RelicFactory.FallbackRelic;
-                    lines.Add("宝箱遗物：" + relic.Title.GetFormattedText());
+                    lines.Add(L10n.Text("宝箱遗物：", "Chest relic: ") + relic.Title.GetFormattedText());
                 }
                 break;
-            case RoomType.Shop: lines.Add("商店：库存暂不可预览"); break;
-            case RoomType.RestSite: lines.Add("休息处：恢复生命 / 升级卡牌"); break;
-            default: lines.Add("此节点暂无奖励预测。"); break;
+            case RoomType.Shop: lines.Add(L10n.Text("商店：库存暂不可预览", "Shop: inventory preview unavailable")); break;
+            case RoomType.RestSite: lines.Add(L10n.Text("休息处：恢复生命 / 升级卡牌", "Rest site: heal / upgrade a card")); break;
+            default: lines.Add(L10n.Text("此节点暂无奖励预测。", "No reward preview available for this node.")); break;
         }
         return string.Join('\n', lines);
     }
@@ -149,22 +153,22 @@ internal static class MapPreview
     private static void CombatRewards(List<string> lines, Player player, RunState run, RoomType type)
     {
         var encounter = run.Act.PullNextEncounter(type); // Reads the queue; does not advance it.
-        lines.Add(RoomName(type) + "胜利后的基础奖励：");
+        lines.Add(RoomName(type) + L10n.Text("胜利后的基础奖励：", " — Base victory rewards:"));
         var rng = new Rng(player.PlayerRng.Rewards.ToSerializable());
         var potionOdds = new PotionRewardOdds(player.PlayerOdds.PotionReward.CurrentValue, rng);
         bool potion = potionOdds.Roll(player, type);
         int gold = rng.NextInt(encounter.MinGoldReward, encounter.MaxGoldReward + 1);
-        lines.Add($"基础金币：{gold}");
-        lines.Add(potion ? "药水：" + PotionFactory.CreateRandomPotionOutOfCombat(player, rng).Title.GetFormattedText() : "药水：无");
+        lines.Add(L10n.Text($"基础金币：{gold}", $"Base gold: {gold}"));
+        lines.Add(potion ? L10n.Text("药水：", "Potion: ") + PotionFactory.CreateRandomPotionOutOfCombat(player, rng).Title.GetFormattedText() : L10n.Text("药水：无", "Potion: none"));
         try
         {
             // Optional integration with the installed predictor. Its context owns cloned RNG and rarity odds.
             var contextType = AppDomain.CurrentDomain.GetAssemblies().Select(a => a.GetType("RandomForeseer.RandomForeseerCode.OutOfCombat.RunPredictionContext")).FirstOrDefault(t => t != null);
             if (contextType == null) {
-                lines.Add("卡牌候选（基础）：\n" + string.Join('\n', BaseCards(player, type, rng).Select(c => "• " + c)));
+                lines.Add(L10n.Text("卡牌候选（基础）：\n", "Card choices (base):\n") + string.Join('\n', BaseCards(player, type, rng).Select(c => "• " + c)));
                 if (type == RoomType.Elite) {
                     var baseRelic = RelicGrabBag.FromSerializable(player.RelicGrabBag.ToSerializable()).PullFromFront(RelicFactory.RollRarity(rng), run) ?? RelicFactory.FallbackRelic;
-                    lines.Add("遗物：" + baseRelic.Title.GetFormattedText());
+                    lines.Add(L10n.Text("遗物：", "Relic: ") + baseRelic.Title.GetFormattedText());
                 }
                 return;
             }
@@ -179,13 +183,13 @@ internal static class MapPreview
             var predictor = contextType.Assembly.GetType("RandomForeseer.RandomForeseerCode.OutOfCombat.CardRewardPrediction")!;
             var method = predictor.GetMethods(BindingFlags.Public | BindingFlags.Static).Single(m => m.Name == "PredictCards" && m.GetParameters()[0].ParameterType == contextType);
             var cards = (IEnumerable<CardModel>)method.Invoke(null, new object?[] { context, 3, CardCreationOptions.ForRoom(player, type).WithFlags(CardCreationFlags.IsFromCombat), null, null })!;
-            lines.Add("卡牌候选：\n" + string.Join('\n', cards.Select(c => "• " + c.Title)));
+            lines.Add(L10n.Text("卡牌候选：\n", "Card choices:\n") + string.Join('\n', cards.Select(c => "• " + c.Title)));
             if (type == RoomType.Elite) {
                 var relic = RelicGrabBag.FromSerializable(player.RelicGrabBag.ToSerializable()).PullFromFront(RelicFactory.RollRarity(contextRng), run) ?? RelicFactory.FallbackRelic;
-                lines.Add("遗物：" + relic.Title.GetFormattedText());
+                lines.Add(L10n.Text("遗物：", "Relic: ") + relic.Title.GetFormattedText());
             }
         }
-        catch (Exception ex) { lines.Add("卡牌预测暂不可用（预测组件不兼容）。"); ModEntry.Log("Reward predictor: " + ex.Message); }
+        catch (Exception ex) { lines.Add(L10n.Text("卡牌预测暂不可用（预测组件不兼容）。", "Card prediction unavailable (incompatible predictor).")); ModEntry.Log("Reward predictor: " + ex.Message); }
     }
 
     private static List<string> BaseCards(Player player, RoomType roomType, Rng rng)
@@ -227,6 +231,8 @@ internal static class MapPreview
     }
 
     private static string RoomName(RoomType type) => type switch {
-        RoomType.Monster => "普通战斗", RoomType.Elite => "精英战斗", RoomType.Boss => "首领战斗",
-        RoomType.Event => "事件", RoomType.Treasure => "宝箱", RoomType.Shop => "商店", _ => type.ToString() };
+        RoomType.Monster => L10n.Text("普通战斗", "Normal combat"), RoomType.Elite => L10n.Text("精英战斗", "Elite combat"), RoomType.Boss => L10n.Text("首领战斗", "Boss combat"),
+        RoomType.Event => L10n.Text("事件", "Event"), RoomType.Treasure => L10n.Text("宝箱", "Treasure"), RoomType.Shop => L10n.Text("商店", "Shop"),
+        RoomType.RestSite => L10n.Text("休息处", "Rest site"),
+        RoomType.Unassigned => L10n.Text("未知房间", "Unknown room"), _ => type.ToString() };
 }

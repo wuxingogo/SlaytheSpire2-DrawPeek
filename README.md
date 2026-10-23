@@ -15,12 +15,18 @@
 
 普通玩家直接使用编译好的模组文件即可，无需安装 .NET SDK、Godot 编辑器或额外下载 Harmony。只有自行修改、编译源码时才需要下方“环境”中列出的开发工具。
 
+## 语言支持
+
+模组界面根据游戏语言自动切换：中文语言使用简体中文，英文及其他语言使用英文。覆盖战斗抽牌预览、地图奖励提示、设置页标题与开关说明。卡牌、事件、药水和遗物名称继续使用游戏自身的本地化文本。
+
+在游戏设置中切换语言后，战斗预览会自动刷新，已打开的地图预览会重新生成；设置页文案在重新打开或刷新页面时更新。无需单独设置模组语言。
+
 ## 使用
 
 1. 从 Steam 启动游戏。
 2. 打开 RitsuLib 的模组设置（Ctrl+Shift+F9）。
 3. 选择“抽牌预览 (Draw Peek)”，切换“启用抽牌预览”。开关立即生效并自动保存。
-4. 战斗中鼠标悬停图标自动展开；点击图标固定面板，移开鼠标也持续显示；再次点击取消固定，恢复悬停显示。关闭模组会取消固定，重启游戏后默认不固定。
+4. 战斗中鼠标悬停图标自动展开；点击图标固定面板，移开鼠标也持续显示；再次点击取消固定，恢复悬停显示。打开暂停、设置及其他覆盖菜单时暂时隐藏预览，关闭菜单后恢复并保留固定状态。关闭模组会取消固定，重启游戏后默认不固定。
 
 列表按当前抽牌数量修正效果估计下回合的抽牌数量，并显示抽牌堆中对应的有序卡名。抽牌堆不足的部分标注“待洗牌确定”。保留手牌、回合开始效果及继续出牌可能改变最终结果。地图预测使用独立随机数副本和遗物池副本，不执行真实抽牌、洗牌或领取奖励。
 
@@ -34,6 +40,26 @@
 - 商店和休息处：显示用途，暂不预测库存或具体选项收益。
 
 这些是基于当前状态的预测，不是锁定结果。未领取的前一场奖励、新手固定奖励、战斗结算触发、遗物奖励加成、事件替换和第三方模组可能影响结果；尚未穷举验证。每次预测核对随机数、概率、遗物池、事件与房间队列是否变化并写入日志。
+
+## 更新记录 / Changelog
+
+### 1.3.2
+
+- 修复顶栏卡牌图标被遮挡的问题。
+- 打开暂停、设置及其他覆盖菜单时暂时隐藏抽牌图标和预览面板；关闭菜单后恢复显示，并保留点击固定状态。
+- Fixed the top-bar card icon being obscured.
+- The card icon and preview panel hide while pause, settings, or other modal screens are open. They return afterward with the pinned state preserved.
+
+### 1.3.0
+
+- 新增完整中英文界面，战斗抽牌预览、地图奖励提示和设置页文案自动跟随游戏语言切换；中文语言使用简体中文，英文及其他语言使用英文。
+- 卡牌、事件、药水和遗物名称继续使用游戏自身的本地化文本。
+- Added Chinese and English UI for combat draw previews, map reward hints, and settings. Text follows the game language: Chinese locales use Simplified Chinese; English and other locales use English.
+- Card, event, potion, and relic names continue to use the game's own localization.
+
+## 维护约定
+
+每次修改项目内容，必须在同一次变更中同步更新本 README 与工程根目录的 `workshop.json` 简介，并将 `workshop.json` 同步至 `E:\software\ModUploader\DrawPeekWorkshop\workshop.json`。更新说明应覆盖中文和英文，准确记录功能、使用方式、依赖或兼容性变化；不影响玩家使用的维护变更也应简要注明。开发者执行细则见 `AGENTS.md`。
 
 ## 环境
 
@@ -50,14 +76,14 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 
 脚本支持 -GameDir 和 -RitsuLibDir 覆盖路径。框架引用 compat/0.111.0 分支；游戏或框架 API 更新后需重新检查兼容性。
 
-安装目录：`G:\SteamLibrary\steamapps\common\Slay the Spire 2\mods\DrawPeek`，包含 DrawPeek.dll 和 DrawPeek.json。
+安装目录：`E:\SteamLibrary\steamapps\common\Slay the Spire 2\mods\DrawPeek`，包含 DrawPeek.dll 和 DrawPeek.json。
 
 关闭游戏后移除 mods\DrawPeek 可卸载。
 
 ## 文件与命名
 
 - 稳定 Mod ID、程序集名、命名空间：DrawPeek。
-- 显示名称：抽牌预览 (Draw Peek)，版本：1.2.1。
+- 显示名称：抽牌预览 (Draw Peek)，版本：1.3.2。
 - Source/ModEntry.cs：入口、设置页面注册、日志。
 - Source/Settings.cs：开关持久化。
 - Source/CombatOverlay.cs：战斗悬浮界面、只读预览与生命周期。

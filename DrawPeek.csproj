@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.4.0</Version>
+    <Version>1.8.2</Version>
     <GameDir Condition="'$(GameDir)' == ''">E:\SteamLibrary\steamapps\common\Slay the Spire 2</GameDir>
     <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">E:\SteamLibrary\steamapps\workshop\content\2868840\3747602295</RitsuLibDir>
     <RitsuCompatVersion Condition="'$(RitsuCompatVersion)' == ''">0.107.1</RitsuCompatVersion>

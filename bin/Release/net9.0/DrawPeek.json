@@ -2,11 +2,16 @@
   "id": "DrawPeek",
   "name": "抽牌预览 (Draw Peek)",
   "author": "wuxingogo",
-  "description": "战斗中预览下回合预计抽到的整组卡牌，支持悬停展开、点击固定面板和基础地图奖励预测，可在 RitsuLib 模组设置中即时开关。 / Preview the cards expected to be drawn next turn, with a hover panel, click-to-pin controls, and basic map reward predictions. Toggle the mod instantly in RitsuLib settings.",
-  "version": "1.4.0",
+  "description": "横排预览当前抽牌堆中最多 5 张已确定的牌，支持点击固定和地图起手预览；抽牌、地图与事件预测可独立开关。 / Preview up to five known cards in the current draw pile in one row, with pinning and map opening hands. Toggle draw, map, and event predictions independently.",
+  "version": "1.8.2",
   "min_game_version": "0.107.1",
   "has_pck": false,
   "has_dll": true,
-  "dependencies": [{ "id": "STS2-RitsuLib", "min_version": "0.6.9" }],
+  "dependencies": [
+    {
+      "id": "STS2-RitsuLib",
+      "min_version": "0.6.9"
+    }
+  ],
   "affects_gameplay": false
 }

@@ -24,7 +24,11 @@ namespace DrawPeek;
 [HarmonyPatch(typeof(NMapPoint), "OnFocus")]
 internal static class MapPreviewFocusPatch
 {
-    private static void Postfix(NMapPoint __instance) => MapPreview.Show(__instance);
+    private static void Postfix(NMapPoint __instance)
+    {
+        OpeningHandPreview.SetTarget(__instance);
+        MapPreview.Show(__instance);
+    }
 }
 
 [HarmonyPatch(typeof(NMapPoint), "OnUnfocus")]
@@ -48,7 +52,7 @@ internal static class MapPreview
 
     internal static void Show(NMapPoint point)
     {
-        if (!Settings.Enabled || point.State != MapPointState.Travelable) return;
+        if (!Settings.MapPredictionEnabled || point.State != MapPointState.Travelable) return;
         if (owner != null) Hide(owner);
         try
         {
@@ -81,7 +85,7 @@ internal static class MapPreview
             string language = L10n.Language;
             var timer = new Godot.Timer { WaitTime = .2, Autostart = true };
             timer.Timeout += () => {
-                if (!Settings.Enabled || !point.IsVisibleInTree() || point.State != MapPointState.Travelable) Hide(point);
+                if (!Settings.MapPredictionEnabled || !point.IsVisibleInTree() || point.State != MapPointState.Travelable) Hide(point);
                 else if (language != L10n.Language) Show(point);
             };
             panel.AddChild(timer);
@@ -133,15 +137,36 @@ internal static class MapPreview
                     if (candidate.IsAllowed(run) && !run.VisitedEventIds.Contains(candidate.Id)) next = candidate;
                 }
                 lines.Add(next == null ? L10n.Text("事件尚不可确定", "Event not yet determined") : L10n.Text("事件：", "Event: ") + next.Title.GetFormattedText());
+                if (next != null)
+                {
+                    try
+                    {
+                        var options = EventOptionPreview.GetLines(next).ToArray();
+                        if (options.Length > 0)
+                        {
+                            lines.Add(L10n.Text("初始选项参考：", "Initial options reference:"));
+                            lines.AddRange(options);
+                        }
+                        else lines.Add(L10n.Text("选项需进入事件后查看。", "Enter the event to view its options."));
+                    }
+                    catch (Exception ex)
+                    {
+                        lines.Add(L10n.Text("选项需进入事件后查看。", "Enter the event to view its options."));
+                        ModEntry.Log("Event option text unavailable: " + ex.Message);
+                    }
+                }
                 break;
             case RoomType.Treasure:
                 var rng = GameCompat.CloneRng(run.Rng.TreasureRoomRelics);
                 var bag = RelicGrabBag.FromSerializable(run.SharedRelicGrabBag.ToSerializable());
+                bool hasTreasureReward = false;
                 foreach (var recipient in run.Players) {
                     if (!Hook.ShouldGenerateTreasure(run, recipient)) continue;
+                    hasTreasureReward = true;
                     var relic = bag.PullFromFront(RelicFactory.RollRarity(rng), run) ?? RelicFactory.FallbackRelic;
                     lines.Add(L10n.Text("宝箱遗物：", "Chest relic: ") + relic.Title.GetFormattedText());
                 }
+                if (!hasTreasureReward) lines.Add(L10n.Text("奖励：空箱子", "Reward: Empty chest"));
                 break;
             case RoomType.Shop: lines.Add(L10n.Text("商店：库存暂不可预览", "Shop: inventory preview unavailable")); break;
             case RoomType.RestSite: lines.Add(L10n.Text("休息处：恢复生命 / 升级卡牌", "Rest site: heal / upgrade a card")); break;

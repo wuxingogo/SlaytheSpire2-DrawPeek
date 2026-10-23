@@ -71,3 +71,111 @@
 - Release 构建 0 警告、0 错误。tests/Verify-Compatibility.ps1 使用真实旧版游戏程序集验证 9 组 seed/counter，共 900 次序列对比，副本生成不推进原始 RNG；旧药水接口及 AscensionManager 创建检查通过。
 - 最低游戏版本设为 0.107.1。保留新版本接口运行时分支，但当前机器缺少 0.111.0 程序集，未完成本次新版本回归。
 - 未启动游戏、未修改游戏安装目录或存档；0.107.1 界面、暂停交互和奖励预测仍待实机验证。
+
+
+## v1.4.1 事件初始选项预览（2026-10-23）
+
+- 读取 EventModel.InitialDescription 的初始页面键，从对应 LocTable 提取初始选项标题及描述；不调用 BeginEvent、GenerateInitialOptions、CalculateVars 或选项回调，不修改事件 Owner/Rng。
+- 去除游戏富文本标记，动态或嵌套 SmartFormat 参数以 ? 显示；静态初始候选不代表当前状态一定可选，界面包含说明。
+- tests/Verify-EventOptions.ps1 使用本机 PCK 提取的 eng/zhs 事件表（.inspect 下，不纳入发布），两种语言各覆盖 57 个事件、147 个初始选项，包含无事件回退及嵌套变量清理检查，全部通过。
+- 0.107.1 Release 编译 0 警告、0 错误。尚未实机验证事件面板布局、第三方事件或特殊初始页面。
+
+
+## v1.4.2 事件说明与空宝箱（2026-10-23）
+
+- 移除事件选项底部关于问号与实际可选项的提示；动态参数占位处理保留。
+- 对照本机 0.107.1 的 TreasureRoomRelicSynchronizer.BeginRelicPicking：Hook.ShouldGenerateTreasure 为所有玩家返回 false 时不生成宝箱遗物；预览在该分支显示中英文空箱子奖励。保留非空遗物池耗尽时的原版 FallbackRelic 行为。
+- 本次未实机验证空宝箱分支。
+
+
+## v1.5.0 事件卡牌图像预览（2026-10-23）
+
+- 本次本机游戏已切回 v0.111.0（release_info.json），使用对应 RitsuLib 适配分支构建，0 警告、0 错误；本次未重新验证 0.107.1。
+- 对照原版事件代码实现 Doors/Conveyor/Tablet/Reflections 随机升级顺序；先战斗后奖励不作提前预测。手动随机变化白名单仅支持默认变化池，不执行 CardFactory.CreateRandomCardForTransform（会注册进 CardScope），而是只读池选取并生成未注册副本。
+- 在 NHoverTipSet.CreateAndShow 的 IEnumerable 重载中仅替换方法局部参数，不修改 EventOption.HoverTips，不使用额外 UI 层级。保留原有悬浮信息和收起机制。
+- tests/Verify-EventCardPrediction.ps1 使用真实游戏模型与内存中独立测试牌组，验证 Doors、Conveyor 两选项、Reflections 共四分支的结果数量、重复预测稳定性、真实 RNG 状态和升级等级不变；另验证变化副本所有者/升级状态/未加入牌组、白名单回退及悬浮接口签名。全部通过，不修改存档或真实游戏设置。
+- PowerShell 宿主的 CoreCLR 10.0.11 不在本机 Harmony 支持范围，无法在该宿主执行原版 UI 方法补丁；仅验证目标签名，不将其视为游戏内补丁或 UI 验证。游戏实际使用其自身运行时。
+- 尚未实机验证卡牌布局、鼠标/手柄交互、变化顺序和特殊奖励修改。第三方卡牌及事件不执行预测。
+
+## v1.5.1 独立预测开关（2026-10-23）
+
+- 在现有 RitsuLib 注册设置页增加地图预测与事件预测开关，分别接入地图显示/隐藏和事件卡牌悬浮入口；原 Enabled 只控制战斗抽牌。
+- 使用隔离临时目录检查实际 Settings.cs 的保存/加载逻辑（仅替换配置目录并使用日志桩）：新配置默认值、旧 Enabled 开/关迁移、全部 8 种组合保存与重载、部分缺失字段迁移通过。未修改玩家设置。
+- 使用本机 v0.111.0 游戏程序集与 RitsuLib compat/0.111.0 完成 Release 构建，0 错误；2 条 NU1900 警告来自无法连接 NuGet 漏洞数据服务，并非编译错误。
+- 本次未实机验证两个设置入口、地图隐藏和事件悬浮交互；未重新验证 v0.107.1。
+- Independent draw, map, and event controls passed isolated migration and persistence checks for all eight combinations. Release build succeeded against the local v0.111.0 assemblies; live UI interaction and v0.107.1 were not revalidated.
+
+## v1.5.2 被寄生的自动机械奖励预测（2026-10-23）
+
+- 原因：此前事件预测白名单只覆盖部分升级/变化选项，没有 INFESTED_AUTOMATON 的 STUDY 与 TOUCH_CORE。
+- 对照本机 v0.111.0 的 InfestedAutomaton、CardCreationOptions、CardFactory 与 PlayerOddsSet：这两个选项使用玩家 Rewards 随机流而非事件 RNG；先按事件基础稀有度抽取，再从角色已解锁且符合联机限制的能力牌/原始耗能为 0 且非 X 费卡池中取牌；NoUpgradeRoll 不进行随机升级。
+- 新增基础奖励预览，不执行 CardFactory.CreateForReward、获牌命令或奖励修改回调，仅创建未登记的卡牌副本。额外奖励替换及第三方修改不在此预测范围，README 和工坊简介已说明。
+- tests/Verify-EventRewardPrediction.ps1 使用真实游戏卡牌和原版私有 RollForRarity + NextItem 作为对照，400 组种子/已推进状态/卡池/稀有度偏移组合通过；覆盖缺少普通稀有度、重复悬停、真实随机数不变及空/无合法稀有度卡池。已有事件卡牌预测回归检查通过。
+- v0.111.0 / RitsuLib compat/0.111.0 Release 构建成功，0 错误；2 条 NU1900 警告为 NuGet 漏洞检查服务连接失败。本次未实机验证悬浮图像和获牌对照，未重新验证 0.107.1。
+- Added base reward previews for both Infested Automaton options. Four hundred comparisons with native rarity/card selection passed without advancing live RNG. Build and existing event prediction regression checks passed; live UI/reward behavior and 0.107.1 were not revalidated.
+
+## v1.5.2 上传参数错误排查（2026-10-23）
+
+- 用户上传日志显示 17:55:32 与 17:56:22 在提交阶段返回 Invalid Parameter；此前内容及五张图片均完成传输。
+- 发布配置可正常解析，description 为 5787 字符、8123 个 UTF-8 字节，超过 Steamworks k_cchPublishedDocumentDescriptionMax = 8000 字节。标题为 24 字节，changeNote 为 280 字节，所有图片均小于 1 MiB。
+- 将简介压缩至 5568 字节，保留双语功能说明和 v1.3.0 至 v1.5.2 更新记录。发布内容版本保持 1.5.2。
+- UploadDrawPeek.bat 新增 JSON/UTF-8 简介长度检查；实际调用 BAT 内相同 PowerShell 命令验证当前简介通过、原 8123 字节简介拒绝、7999/8000 字节边界和非法 JSON 正确处理，未执行上传。
+- Steam 日志未明确指出具体字段；简介超限为已确认的参数违规，修正后的服务器提交结果仍需重新上传确认。
+- Confirmed an oversized description (8123 UTF-8 bytes) after Invalid Parameter failures at commit. Condensed to 5568 bytes and verified the BAT preflight boundary/error handling. No mod binary changed and no Steam upload was performed.
+
+## v1.6.0 地图下一场起手预览（2026-10-23）
+
+- 扩展现有顶部图标：非战斗、地图打开且可旅行时显示下一场基础起手；战斗中仍显示当前战斗的下回合抽牌。保留固定模式、暂停/设置/覆盖菜单隐藏逻辑与独立抽牌开关。
+- 对照 v0.111.0 Player.PopulateCombatState、CardPile.RandomizeOrderInternal、CombatManager.SetupPlayerTurn：使用初始 UnstableShuffle；复制共享 Shuffle RNG，并按玩家顺序重放前序牌组的洗牌消耗。先移动沉底附魔，再逐张 MoveToTop 对应的固有反序；不改变原始牌序或 RNG。
+- 按只读规则计算已支持遗物的第一回合抽牌量，包括准备背包、蛇/龙之戒、蘑菇、Fiddle、Pael's Blood、Snecko Eye、Pendulum、Pollinous Core；最近悬停的可前往精英节点支持 Booming Conch。关闭地图清除目标，不依赖地图奖励开关。
+- tests/Verify-OpeningHand.ps1 与原版 UnstableShuffle、CardPile.MoveToBottomInternal/MoveToTopInternal 对照 600 组，覆盖空/单牌、正常牌组、固有反序、沉底与固有冲突、多名前序玩家、已推进随机状态、重复预测，以及真实牌序和 RNG 不变。已支持起手数量与原版第一回合规则对照通过，另验证精英分支与手牌上限。
+- 仅预测当前牌组的基础起手；不执行战斗创建、抽牌命令或真实战斗钩子。开场生成牌、自动打出、换牌、特殊洗牌及第三方效果未完整模拟，界面/双语说明标明基础结果可能变化。
+- v0.111.0 + RitsuLib compat/0.111.0 Release 构建成功，0 错误；2 条 NU1900 警告来自 NuGet 漏洞服务不可达。本次未实机验证地图图标、固定状态、菜单及节点切换，也未重新验证 0.107.1。
+- Workshop description 为 6582 UTF-8 字节，低于上传限制。
+- Added a map opening-hand mode with isolated initial shuffle and supported first-turn draw rules. Six hundred native order comparisons and relic count checks passed. Build succeeded; live UI and v0.107.1 were not revalidated.
+
+## v1.6.1 地图图标间歇隐藏修复（2026-10-23）
+
+- 玩家日志确认已加载 v1.6.0 且抽牌开关开启；可读取到地图起手成功记录，没有对应的 Preview update failed。旧日志没有逐次可见性原因，因此不能从日志还原每次隐藏时的具体状态。
+- 对照 NOverlayStack：ScreenCount 返回栈内面板数量；地图 Opened 调用 HideOverlays，只隐藏栈顶奖励屏幕而不清空栈，StackIsCovered 在地图打开时为 true。v1.6.0 的 ScreenCount == 0 条件会误把地图下方保留的奖励屏幕当作前台遮挡。
+- 地图打开且实际可见时不再因后台 overlay 数量隐藏抽牌图标；仍保留抽牌开关、战斗/可选点地图、旅行状态以及暂停/设置等 capstone/submenu 屏蔽。非地图场景继续使用 overlay 屏蔽。
+- 订阅地图 Opened/Closed 信号即时刷新，在根节点 TreeExiting 解绑；新增仅状态变化时记录的可见性日志，便于区分旅行锁定、前台菜单和其他隐藏原因。
+- v0.111.0 + RitsuLib compat/0.111.0 Release 构建成功，0 错误，NuGet 漏洞服务连接失败产生 2 条 NU1900 警告。发布配置 JSON 与 7057 字节简介检查通过。未实机验证奖励后开图和菜单切换，也未重新验证 v0.107.1。
+- Fixed a visibility gate that counted reward screens hidden beneath the map as foreground blockers. Map open/close now refreshes immediately, with transition-only visibility diagnostics. Build and publishing metadata checks passed; live UI behavior remains unverified.
+
+## v1.7.0 单行抽牌牌面（2026-10-23）
+
+- 将战斗下回合与地图基础起手从文字列表改为单行横排原生卡牌牌面，按抽牌顺序从左到右显示；无面板标题、序号及附加说明。待洗牌位置为无字卡背，空结果隐藏面板。
+- 复用原版 card_hover_tip.tscn / NCard，卡牌使用 MutableClone；原版渲染会清理/更新 DynamicVars，因此不将真实牌组中的模型直接交给渲染器。重复牌保留独立位置，不登记新牌、不执行抽牌命令。视图节点复用并刷新副本，鼠标与焦点输入禁用。
+- 布局只使用一行，按可用宽高压缩间距和等比缩放，并将面板位置限制在界面内；保留悬停、固定、地图奖励界面隐藏修复与暂停菜单遮挡逻辑。
+- v0.111.0 + RitsuLib compat/0.111.0 Release 编译通过，0 错误、2 条 NU1900 警告（漏洞检查服务无法连接）。既有起手预测回归测试通过：600 组原版洗牌/牌序对照及遗物抽牌数量、精英分支、手牌上限检查。
+- 工坊简介 7474 UTF-8 字节，小于 8000 字节；版本统一为 1.7.0。当前无法在离线测试进程中运行 Godot 原生 UI，横排布局、窗口缩放、鼠标操作和游戏内语言切换尚未实机验证；未重新验证 v0.107.1。
+- Replaced text previews with one horizontal row of native card faces backed by cloned models, with blank backs for unknown shuffle slots. Release build and 600 native opening-order comparisons plus draw-count regression checks passed. Live Godot UI, resizing, interactions, language switching, and v0.107.1 were not revalidated.
+
+## v1.8.0 战斗重新洗牌预测（2026-10-23）
+
+- 对照 v0.111.0 CardPileCmd.Draw/Shuffle：抽牌堆用尽后，将弃牌堆副本按原版 StableShuffle（先 CompareTo 排序，再 Fisher-Yates）和复制的共享 Shuffle RNG 排列，接到剩余抽牌堆后。与开局 UnstableShuffle 区分；本次已抽到手里的牌不再次加入洗牌池，两堆耗尽时停止。
+- 按“现在结束回合”的基础状态计入普通手牌弃置，排除虚无牌、保留牌，并按保留数量限制手牌空间；原版 RunicPyramid、RingingTriangle、RetainHandPower、WellLaidPlansPower 仅调用已核对的只读 ShouldFlush。敌方回合不再次模拟手牌弃置。
+- 支持 PerfectFit，按预测时未来弃牌堆的监听顺序逐张置顶；不执行真实 ModifyShuffleOrder、回合末、抽牌或奖励命令。不支持的洗牌/弃牌/虚无规则以及有特殊回合末效果的手牌保留未知卡背，等待状态刷新。
+- tests/Verify-CombatReshuffle.ps1：480 组与原版 StableShuffle 和 PerfectFit.ModifyShuffleOrder 对照，覆盖空/不足/充足抽牌堆、空/单牌/大弃牌堆、重复牌、已推进随机数、数量截断、重复预览、真实 RNG 与牌序不变；普通/保留/虚无/固有、全手保留、敌方回合、Burn 与未知卡背分支检查通过。
+- 原有起手预测 600 组洗牌/牌序及遗物抽牌数量回归检查通过。v0.111.0 + RitsuLib compat/0.111.0 Release 构建 0 错误、2 条 NU1900 警告（NuGet 漏洞数据服务不可达）。工坊简介 7811 UTF-8 字节，版本统一为 1.8.0。
+- 预测不会完整模拟敌方、开场或抽牌触发链、其他玩家后续消耗共享随机数、第三方效果；玩家继续出牌亦会改变当前预测。尚未实机对照下一回合抽牌和 UI，也未重新验证 v0.107.1。
+- Added base next-turn discard reshuffle prediction with native stable shuffling, cloned RNG, normal hand flushing, Retain/Ethereal, hand capacity, and PerfectFit. All 480 reshuffle comparisons and 600 opening-hand regression comparisons passed. Build succeeded; live UI/gameplay and v0.107.1 remain unverified. Future effects and shared multiplayer RNG consumption are outside the simulation.
+
+## v1.8.1 当前牌堆与异步刷新修复（2026-10-23）
+
+- 根因：v1.8.0 仅按 CurrentSide=Player 假设结束回合，提前把手牌混入洗牌池；Start 阶段也属于玩家方，自动抽牌中途会把新入手的牌再次纳入预测。旧测试只覆盖给定牌池的 Predict 和独立 ProjectHand，未覆盖运行时选池路径。
+- 删除回合末手牌投影，Build 直接走可测试的 BuildFromPiles，仅传入真实 DrawPile/DiscardPile，保留原版 StableShuffle 和 PerfectFit 规则。预览改为接下来的最多 5 张牌序，不再用 ModifyHandDraw 或假设未来手牌数量；实际效果抽牌数量与游戏手牌上限由游戏决定。
+- 在 CardPileCmd.Draw(decimal, Player, bool) 与 Shuffle 的同步入口开始计数，包装其 Task 到完整结束时才在 finally 释放；嵌套、取消、异步异常和同步异常均保持计数平衡。只读刷新保护另覆盖 Start/AutoPrePlay、回合结束、PlayPile 与原版卡牌/药水效果结算。阶段/效果接口以反射处理版本差异，期间隐藏牌面而保留图标与固定状态，完成后由 0.2 秒定时刷新恢复。
+- Verify-CombatReshuffle.ps1 的 480 组原版 StableShuffle/PerfectFit 对照通过；新增真实 BuildFromPiles 路径，覆盖 None/Start/AutoPrePlay/Play、空/普通/满手牌、Burn/保留/虚无，以及手牌/Play/Exhaust 不混入和空池回退。
+- Verify-DrawRefresh.ps1 直接调用实际补丁 Prefix/Postfix/Finalizer，验证嵌套抽牌与洗牌、玩家隔离、结果对象保持、异步完成/失败/取消与同步异常释放，并核对原版接口签名。此测试不等同于实机 Harmony 分发及 UI 验证。
+- v0.111.0 + RitsuLib compat/0.111.0 Release 编译 0 错误、2 条 NU1900 警告（漏洞服务不可达）。简介 7846 UTF-8 字节，小于 8000；版本统一为 1.8.1。本次未实机验证 UI/自动抽牌/控制台抽牌，也未重新验证 v0.107.1。
+- Removed speculative hand flushing and now preview up to five next cards from live draw/discard piles. Async command guards hide intermediate card faces until nested draws/shuffles and related resolution finish. Native shuffle comparisons, actual pile-selection regressions, and patch callback lifecycle checks passed. Live Harmony/UI behavior and v0.107.1 were not revalidated.
+
+## v1.8.2 暂停战斗重新洗牌预测（2026-10-23）
+
+- 按用户要求移除战斗弃牌堆的洗牌预测路径。CombatDrawPreview 只截取真实 DrawPile 的前最多 5 张，不读取弃牌堆、不推演手牌弃置、不计算洗牌 RNG，也不补未知卡背。
+- 空抽牌堆收起牌面；实际洗牌结束后，沿用 v1.8.1 的异步结算保护和定时刷新，显示真实新牌序。地图起手预览未改动。
+- 更新既有 Verify-CombatReshuffle.ps1 为暂停预测的回归检查：抽牌堆 0/1/3/5/7 张时，即使手牌、弃牌堆、打出区与消耗堆各有 7 张，也只显示已知抽牌堆前缀，无占位，无牌堆修改。检查通过。
+- v0.111.0 + RitsuLib compat/0.111.0 Release 构建通过，0 错误、2 条 NU1900 警告（漏洞服务不可达）；版本 1.8.2，双语简介 7924 UTF-8 字节，小于 8000。未进行新一轮实机 UI 或 v0.107.1 验证。
+- Suspended combat reshuffle prediction and show only the known draw-pile prefix, without discarded cards or placeholders. Existing empty-row handling and async resolution guards restore the view after actual shuffles. Build and focused known-pile regression checks passed; live UI was not revalidated.

@@ -207,3 +207,10 @@
 - Release 构建 0 警告、0 错误。读取编译 DLL 的程序集引用确认没有 RitsuLib；模组 manifest 无前置依赖，两份工坊配置无 RitsuLib 依赖。异步抽牌回归与 360 组洗牌/抽牌数量检查通过。
 - 工坊文件同步及哈希检查通过，简介 7740 字节。未安装、未上传 Steam，未实机验证设置窗口布局、输入和语言切换；未重新验证 v0.107.1。RandomForeseer 若启用仍须满足它自己的前置要求。
 - Standalone build: no RitsuLib assembly references or required mod dependency. Native Mods screen settings reuse persisted configuration; localization uses the game directly. Build and prediction/async regressions passed, publishing files synchronized. No installation, upload, live settings UI verification, or v0.107.1 revalidation was performed.
+## v2.0.1 JmcModLib 模组设置入口（2026-10-23）
+
+- 检查本机 JmcModLib.Runtime 与 QuickSL：设置中的模组设置选项卡由 JmcModLib 提供，QuickSL 使用其 Config 属性注册配置。v2.0.0 仅添加原生模组列表页按钮，未注册到该框架，因而没有显示三个开关。
+- 新增可选反射桥接，在 NSettingsScreen._Ready 前向已加载的 ConfigManager.RegisterConfig<bool> 注册三个开关，明确归属 DrawPeek 程序集；不主动加载框架，不添加必需依赖。无框架时保留独立窗口。注册导入阶段忽略框架旧存储，实际交互绑定原 Settings getters/setters。
+- Release 构建 0 警告、0 错误。Verify-SettingsBridge.ps1 以接口替身检查框架缺失、晚加载、三项注册、重复打开幂等、程序集归属、保留旧设置及无框架程序集引用。该测试不等同于真实 JmcModLib 窗口渲染验证。
+- 同步上传目录，保留工坊条目 ID 与空必需依赖；简介 7949 字节。未安装游戏文件，未上传 Steam，未实机验证。
+- Added optional JmcModLib registration for the three toggles while retaining standalone settings. Build and contract checks passed; upload workspace synchronized. No installation, Steam upload, or live UI verification was performed.

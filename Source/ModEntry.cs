@@ -13,7 +13,7 @@ public static class ModEntry
     {
         Settings.Load();
         new Harmony("local.drawpeek").PatchAll(typeof(ModEntry).Assembly);
-        Log($"Initialized v2.0.0; standalone settings; enabled={Settings.Enabled}; map={Settings.MapPredictionEnabled}; event={Settings.EventPredictionEnabled}");
+        Log($"Initialized v2.0.1; standalone settings; enabled={Settings.Enabled}; map={Settings.MapPredictionEnabled}; event={Settings.EventPredictionEnabled}");
     }
 
     internal static void Log(string message)

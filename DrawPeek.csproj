@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <GameDir Condition="'$(GameDir)' == ''">G:\SteamLibrary\steamapps\common\Slay the Spire 2</GameDir>
   </PropertyGroup>
   <ItemGroup>

@@ -24,7 +24,7 @@
 ## 使用
 
 1. 从 Steam 启动游戏。
-2. 打开游戏原生模组页面，点击右上方的抽牌预览设置。
+2. 已启用 JmcModLib 时，打开设置 → 模组设置，在 Draw Peek 下直接调整三个开关。未安装 JmcModLib 时，打开原生模组列表页面，点击右上方的抽牌预览设置。
 3. 选择“抽牌预览 (Draw Peek)”，分别设置“启用抽牌预览”“启用地图预测”和“启用事件预测”。独立设置窗口沿用已有配置，开关独立生效并自动保存。
 4. 战斗中鼠标悬停图标自动展开；点击图标固定面板，移开鼠标也持续显示；再次点击取消固定，恢复悬停显示。打开暂停、设置及其他覆盖菜单时暂时隐藏预览，关闭菜单后恢复并保留固定状态。关闭抽牌预览会取消固定，重启游戏后默认不固定。
 
@@ -221,7 +221,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 ## 文件与命名
 
 - 稳定 Mod ID、程序集名、命名空间：DrawPeek。
-- 显示名称：抽牌预览 (Draw Peek)，版本：2.0.0。
+- 显示名称：抽牌预览 (Draw Peek)，版本：2.0.1。
 - Source/ModEntry.cs：入口、设置页面注册、日志。
 - Source/Settings.cs：开关持久化。
 - Source/CombatOverlay.cs：战斗悬浮界面、只读预览与生命周期。
@@ -284,3 +284,10 @@ Release text comes from the project's `workshop.json`; publisher-managed fields 
 更新默认只编译、检查并同步工坊上传目录，不自动安装到游戏目录。只有用户明确要求安装时才执行安装；退出游戏不代表授权安装。
 
 Updates only build, validate, and synchronize the Workshop upload workspace by default. Installation into the game requires an explicit user request; closing the game does not authorize installation.
+
+
+## 2.0.1 设置入口修正 / Settings integration
+
+JmcModLib 的模组设置页通过可选接口注册三个独立开关，和独立窗口共用原配置。JmcModLib 与 RitsuLib 均不是必需依赖；仅在 JmcModLib 已加载时接入。注册时不让框架的旧配置覆盖 DrawPeek 现有配置，重复打开设置不会重复注册。
+
+With JmcModLib loaded, Settings > Mod Settings exposes all three toggles using an optional registration API. The standalone window shares the existing settings. Neither JmcModLib nor RitsuLib is required. Registration preserves DrawPeek settings rather than importing the framework's stale values, and repeated opening does not duplicate entries.

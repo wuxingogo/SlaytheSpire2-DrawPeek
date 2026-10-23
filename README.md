@@ -7,11 +7,11 @@
 | 项目 | 是否必需 | 说明 |
 | --- | --- | --- |
 | 《杀戮尖塔2》 | 必需 | 最低目标版本 v0.107.1；已通过该版本编译和兼容接口检查。 |
-| RitsuLib（Mod ID：STS2-RitsuLib） | 必需 | 最低版本 0.6.9，且须与游戏版本兼容。在 Steam 创意工坊订阅并在游戏中启用。DrawPeek 的设置页面和开关依赖它，未安装或未启用时无法正常加载。 |
+| RitsuLib | 不需要 | v2.0.0 起为独立版；其他模组可能仍需要。 |
 | DrawPeek（抽牌预览） | 必需 | 安装并启用本模组；手动安装时，将 DrawPeek.dll 和 DrawPeek.json 一起放入游戏目录的 mods/DrawPeek 文件夹。 |
 | RandomForeseer（随机数预测） | 可选 | 不安装也能使用顶部悬停抽牌预览和内置的基础地图奖励预测。已加载且接口兼容时，会优先使用它增强卡牌奖励预测。 |
 
-建议顺序：先安装并启用 RitsuLib，再安装 DrawPeek，重启游戏后使用。
+独立版直接安装并启用 DrawPeek 即可。RandomForeseer 仍为可选增强，它自身的前置依赖需另行满足。
 
 普通玩家直接使用编译好的模组文件即可，无需安装 .NET SDK、Godot 编辑器或额外下载 Harmony。只有自行修改、编译源码时才需要下方“环境”中列出的开发工具。
 
@@ -24,8 +24,8 @@
 ## 使用
 
 1. 从 Steam 启动游戏。
-2. 打开 RitsuLib 的模组设置（Ctrl+Shift+F9）。
-3. 选择“抽牌预览 (Draw Peek)”，分别设置“启用抽牌预览”“启用地图预测”和“启用事件预测”。模组设置与 RitsuLib 设置入口共用同一页面和配置，开关独立生效并自动保存。
+2. 打开游戏原生模组页面，点击右上方的抽牌预览设置。
+3. 选择“抽牌预览 (Draw Peek)”，分别设置“启用抽牌预览”“启用地图预测”和“启用事件预测”。独立设置窗口沿用已有配置，开关独立生效并自动保存。
 4. 战斗中鼠标悬停图标自动展开；点击图标固定面板，移开鼠标也持续显示；再次点击取消固定，恢复悬停显示。打开暂停、设置及其他覆盖菜单时暂时隐藏预览，关闭菜单后恢复并保留固定状态。关闭抽牌预览会取消固定，重启游戏后默认不固定。
 
 ## 战斗抽牌范围 / Combat draw scope
@@ -40,7 +40,7 @@ Predictions do not execute real draws or turn-end effects or advance live RNG. F
 
 ## 独立开关 / Independent toggles
 
-模组设置和 RitsuLib 设置中的 Draw Peek 页面共用以下三个开关：
+原生模组页面中的抽牌预览设置提供以下三个开关：
 
 - 启用抽牌预览：控制战斗中当前牌堆的后续抽牌顺序及地图选点时的下一场基础起手预览。
 - 启用地图预测：控制地图上可前往节点的房间、奖励及事件初始选项信息。
@@ -48,7 +48,7 @@ Predictions do not execute real draws or turn-end effects or advance live RNG. F
 
 三个开关互不依赖，自动保存，无需重启。新配置默认全部开启；旧配置中缺失的新开关沿用原开关状态，随后可单独调整。
 
-The Draw Peek page in mod settings and RitsuLib settings shares three independent toggles:
+The Draw Peek Settings button in the native Mods screen provides three independent toggles:
 
 - Enable Draw Peek: the next cards from current combat piles and the next combat base opening hand on the map.
 - Enable Map Predictions: room, reward, and initial event option information for reachable map nodes.
@@ -100,6 +100,11 @@ Hover a supported random-upgrade event button to see predicted card images besid
 这些是基于当前状态的预测，不是锁定结果。未领取的前一场奖励、新手固定奖励、战斗结算触发、遗物奖励加成、事件替换和第三方模组可能影响结果。每次预测核对随机数、概率、遗物池、事件与房间队列是否变化并写入日志。
 
 ## 更新记录 / Changelog
+
+### 2.0.0
+
+- 独立版无需 RitsuLib；在原生模组页面点击抽牌预览设置，保留三个独立开关、自动保存和旧配置。RandomForeseer 可选，其自身依赖需单独满足。
+- Standalone: no RitsuLib required. Open Draw Peek Settings in the native Mods screen; all three toggles, automatic saving, and existing configuration are preserved. RandomForeseer remains optional with its own requirements.
 
 ### 1.9.0
 
@@ -194,7 +199,7 @@ Hover a supported random-upgrade event button to see predicted card images besid
 
 ## 环境
 
-当前本机构建基准为游戏 v0.111.0，依赖 RitsuLib 0.6.9。自行构建需要支持 net9.0 目标框架的 .NET SDK（本机使用 .NET SDK 10.0.203）、本机游戏程序集和 RitsuLib 程序集。无需 Godot 编辑器和 PCK。
+当前本机构建基准为游戏 v0.111.0，无需 RitsuLib。自行构建需要支持 net9.0 目标框架的 .NET SDK（本机使用 .NET SDK 10.0.203）和本机游戏程序集。无需 Godot 编辑器和 PCK。
 
 ```powershell
 # 编译、打包并同步工坊上传目录
@@ -205,7 +210,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 ```
 
-脚本支持 -GameDir、-RitsuLibDir 和 -RitsuCompatVersion 覆盖路径及适配版本。默认引用 RitsuLib 的 compat/0.111.0 分支。构建时必须使用目标游戏版本的程序集；其他游戏版本需使用对应的 RitsuLib 适配分支并重新检查兼容性。
+脚本支持 -GameDir 和 -WorkshopDir 指定游戏及发布目录。独立版不需要 RitsuLib 编译引用。其他游戏版本应重新检查兼容性。
 
 兼容接口检查：`pwsh -File .\tests\Verify-Compatibility.ps1`。此检查不启动游戏、不修改存档，不能替代实机验证。
 
@@ -216,7 +221,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 ## 文件与命名
 
 - 稳定 Mod ID、程序集名、命名空间：DrawPeek。
-- 显示名称：抽牌预览 (Draw Peek)，版本：1.9.0。
+- 显示名称：抽牌预览 (Draw Peek)，版本：2.0.0。
 - Source/ModEntry.cs：入口、设置页面注册、日志。
 - Source/Settings.cs：开关持久化。
 - Source/CombatOverlay.cs：战斗悬浮界面、只读预览与生命周期。
@@ -228,7 +233,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 
 游戏日志：`%APPDATA%\SlayTheSpire2\logs\godot.log`
 
-设置接口参考：[RitsuLib 官方文档](https://sts2-ritsulib.ritsukage.com/guide/mod-settings)。实际编译引用本机框架程序集。
+设置窗口直接使用游戏自带 Godot 控件；语言直接读取游戏本地化管理器。
 
 
 ## 上传创意工坊 / Workshop upload

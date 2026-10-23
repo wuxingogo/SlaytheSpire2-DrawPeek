@@ -200,3 +200,10 @@
 - Release 构建 0 警告、0 错误；360 组原版洗牌/数量/边界/随机数隔离检查、PerfectFit 原版 hook 对照、手牌投影及抽牌增减/上限/遗物计数检查通过。异步抽牌生命周期回归和 600 组地图起手对照通过。
 - 已同步 ModUploader/DrawPeekWorkshop 并核对 DLL/JSON/config；简介 7910 UTF-8 字节。未安装、未启动游戏、未上传 Steam。未实机验证布局和交互，未重新验证 v0.107.1。
 - Restored cloned reshuffle forecasts with a vertical group divider and projected next-turn draw counts, respecting retained-hand capacity and supported native modifiers. Release build and shuffle/count/async/opening-hand regressions passed. Workshop staging was synchronized; no installation, live UI validation, Steam upload, or v0.107.1 revalidation was performed.
+## v2.0.0 独立版（2026-10-23）
+
+- 移除全部 RitsuLib 程序集引用、构建参数、模组 manifest 必需依赖，以及工坊配置中的 RitsuLib 条目。保留上传工作区的其他字段、封面和条目 ID。
+- 使用原生 NModdingScreen.OnSubmenuOpened 补丁提供独立设置按钮和 PopupPanel，三个开关复用原来的 Settings 保存/迁移逻辑；关闭父页面时关闭弹窗。中文/英文直接读取 LocManager.Language。
+- Release 构建 0 警告、0 错误。读取编译 DLL 的程序集引用确认没有 RitsuLib；模组 manifest 无前置依赖，两份工坊配置无 RitsuLib 依赖。异步抽牌回归与 360 组洗牌/抽牌数量检查通过。
+- 工坊文件同步及哈希检查通过，简介 7740 字节。未安装、未上传 Steam，未实机验证设置窗口布局、输入和语言切换；未重新验证 v0.107.1。RandomForeseer 若启用仍须满足它自己的前置要求。
+- Standalone build: no RitsuLib assembly references or required mod dependency. Native Mods screen settings reuse persisted configuration; localization uses the game directly. Build and prediction/async regressions passed, publishing files synchronized. No installation, upload, live settings UI verification, or v0.107.1 revalidation was performed.

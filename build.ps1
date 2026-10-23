@@ -1,9 +1,10 @@
 param(
-    [string]$GameDir = 'E:\SteamLibrary\steamapps\common\Slay the Spire 2',
+    [string]$GameDir = 'G:\SteamLibrary\steamapps\common\Slay the Spire 2',
     [switch]$Install,
     [switch]$Launch,
-    [string]$RitsuLibDir = 'E:\SteamLibrary\steamapps\workshop\content\2868840\3747602295',
-    [string]$RitsuCompatVersion = '0.107.1'
+    [string]$RitsuLibDir = 'G:\SteamLibrary\steamapps\workshop\content\2868840\3747602295',
+    [string]$RitsuCompatVersion = '0.111.0',
+    [string]$WorkshopDir = (Join-Path $PSScriptRoot '..\ModUploader\DrawPeekWorkshop')
 )
 $ErrorActionPreference = 'Stop'
 if (-not (Test-Path -LiteralPath (Join-Path $GameDir 'data_sts2_windows_x86_64\sts2.dll'))) {
@@ -20,6 +21,7 @@ foreach ($file in @('DrawPeek.dll', 'DrawPeek.json')) {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot "bin\Release\net9.0\$file") -Destination $package -Force
 }
 Write-Host "Package ready: $package"
+& (Join-Path $PSScriptRoot 'Sync-Workshop.ps1') -WorkshopDir $WorkshopDir
 if ($Install -or $Launch) {
     $destination = Join-Path $GameDir 'mods\DrawPeek'
     New-Item -ItemType Directory -Path $destination -Force | Out-Null

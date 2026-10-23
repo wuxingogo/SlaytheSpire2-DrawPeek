@@ -1,6 +1,6 @@
 # 抽牌预览（Draw Peek）
 
-战斗中将鼠标移到顶部计时器左侧的卡牌小图标上，以单行横排牌面查看当前抽牌堆中最多 5 张已确定的牌，从左到右为抽牌顺序。抽牌后自动刷新，牌面使用游戏本地化名称、费用、效果和升级状态。
+战斗中将鼠标移到顶部计时器左侧的卡牌小图标上，以单行横排牌面查看下一回合预计抽到的牌，从左到右为抽牌顺序。抽牌后自动刷新，牌面使用游戏本地化名称、费用、效果和升级状态。
 
 ## 安装前需要准备
 
@@ -28,19 +28,15 @@
 3. 选择“抽牌预览 (Draw Peek)”，分别设置“启用抽牌预览”“启用地图预测”和“启用事件预测”。模组设置与 RitsuLib 设置入口共用同一页面和配置，开关独立生效并自动保存。
 4. 战斗中鼠标悬停图标自动展开；点击图标固定面板，移开鼠标也持续显示；再次点击取消固定，恢复悬停显示。打开暂停、设置及其他覆盖菜单时暂时隐藏预览，关闭菜单后恢复并保留固定状态。关闭抽牌预览会取消固定，重启游戏后默认不固定。
 
-面板显示当前抽牌堆中最多 5 张已确定的牌序，以单行原版卡牌牌面显示，不显示额外标题、列表、序号或说明。抽牌堆不足 5 张时只显示剩余牌，不补洗牌预测或卡背；没有可展示的牌时收起面板。牌多或窗口较窄时压缩间距并统一缩放，不换行。这是牌序预览，不代表某张卡牌的实际抽牌数量，也不提前模拟结束回合。地图预测使用独立随机数副本和遗物池副本，不执行真实抽牌、洗牌或领取奖励。
-
-Card faces appear in one horizontal row, from left to right in draw order, with native localized names, costs, effects, and upgrade states. There are no extra headings, lists, numbers, or captions. Only known cards in the current draw pile are shown; short piles are not padded with reshuffle predictions or backs, and empty piles hide the row. Gaps and card scale adapt to available width without wrapping. Shows up to five known cards from the current draw pile, not the draw count of a particular card effect or a simulated end turn.
-
 ## 战斗抽牌范围 / Combat draw scope
 
-暂停战斗重新洗牌预测，只显示当前抽牌堆中最多 5 张已确定的牌。牌堆不足时不补预测或卡背，空牌堆收起牌面；实际洗牌完成后恢复显示新牌序。
+按下一回合预计抽牌数量显示，不再固定 5 张。当前抽牌堆不足时，用随机数副本预测弃牌堆洗牌；两组牌之间显示竖线，只有一组时不显示线。以现在结束回合为基础，将普通手牌计入未来弃牌堆，排除保留和虚无牌，并受剩余手牌容量限制。支持原版额外抽牌、抽牌减少、部分回合计数遗物与 PerfectFit；无法确定的洗牌位置显示无字卡背。抽牌和出牌结算期间保留上一帧，稳定后直接刷新。
 
-抽牌、洗牌及相关结算期间仍暂时收起牌面，保留图标和固定状态。实际抽牌数量与能否抽牌由游戏效果和手牌上限决定。地图选点时的下一场基础起手预览保持原有行为。
+Preview the expected next-turn draw count instead of a fixed five. When the draw pile runs short, predict the discard reshuffle using cloned RNG and separate the two groups with a vertical line; no line appears for a single group. Assume the turn ends now: ordinary hand cards enter the future discard pile, retained and Ethereal cards are excluded, and retained cards limit hand capacity. Supports native draw bonuses/reductions, supported turn-counter relics, and PerfectFit. Uncertain reshuffle slots use blank card backs. Keep the previous frame during resolution and refresh when settled.
 
-Suspended combat reshuffle predictions. Show only up to five known cards in the current draw pile, without extra predictions or card backs. Empty piles hide the row; after a real shuffle, previews resume from the new order.
+预测基于当前状态，不会执行真实抽牌、回合末效果或修改真实随机数。继续出牌、敌方行动、抽牌触发、生成牌、选择效果、联机共享随机数和第三方模组可能改变结果；当前不完整模拟这些触发链。手牌中的特殊回合末效果及未知洗牌规则会使洗牌部分退回卡背。首次无缓存时等待稳定牌面，零抽牌或无牌可抽时收起。
 
-Card faces still hide during draw/shuffle and related resolution while the icon and pinned state remain. Actual draws follow game effects and hand limits. The map's next-combat base opening-hand preview keeps its existing behavior.
+Predictions do not execute real draws or turn-end effects or advance live RNG. Further plays, enemy actions, draw triggers, generated cards, choices, shared multiplayer RNG, and third-party effects can change the result and are not fully simulated. Special end-of-turn hand effects or unknown shuffle rules use backs for the reshuffled portion. First use waits for a stable frame; zero draws or exhausted piles hide the row.
 
 ## 独立开关 / Independent toggles
 
@@ -104,6 +100,11 @@ Hover a supported random-upgrade event button to see predicted card images besid
 这些是基于当前状态的预测，不是锁定结果。未领取的前一场奖励、新手固定奖励、战斗结算触发、遗物奖励加成、事件替换和第三方模组可能影响结果。每次预测核对随机数、概率、遗物池、事件与房间队列是否变化并写入日志。
 
 ## 更新记录 / Changelog
+
+### 1.9.0
+
+- 恢复洗牌后抽牌预测，加入分组竖线；按下一回合预计抽牌数显示并考虑保留手牌上限。保持结算期间持续显示。
+- Restored reshuffle previews with a vertical divider; use the expected next-turn draw count and retained-hand capacity while preserving continuous display during resolution.
 
 ### 1.8.2
 
@@ -189,14 +190,14 @@ Hover a supported random-upgrade event button to see predicted card images besid
 
 ## 维护约定
 
-每次修改项目内容，必须在同一次变更中同步更新本 README 与工程根目录的 `workshop.json` 简介，并将 `workshop.json` 同步至 `E:\software\ModUploader\DrawPeekWorkshop\workshop.json`。更新说明应覆盖中文和英文，准确记录功能、使用方式、依赖或兼容性变化；不影响玩家使用的维护变更也应简要注明。开发者执行细则见 `AGENTS.md`。
+每次修改项目内容，必须在同一次变更中同步更新本 README 与工程根目录的 `workshop.json` 简介，并将 `workshop.json` 同步至 `G:\project\SlaytheSpire2Demo\ModUploader\DrawPeekWorkshop\workshop.json`。更新说明应覆盖中文和英文，准确记录功能、使用方式、依赖或兼容性变化；不影响玩家使用的维护变更也应简要注明。开发者执行细则见 `AGENTS.md`。
 
 ## 环境
 
-当前构建基准为本机游戏 v0.107.1，依赖 RitsuLib 0.6.9。自行构建需要支持 net9.0 目标框架的 .NET SDK（本机使用 .NET SDK 10.0.203）、本机游戏程序集和 RitsuLib 程序集。无需 Godot 编辑器和 PCK。
+当前本机构建基准为游戏 v0.111.0，依赖 RitsuLib 0.6.9。自行构建需要支持 net9.0 目标框架的 .NET SDK（本机使用 .NET SDK 10.0.203）、本机游戏程序集和 RitsuLib 程序集。无需 Godot 编辑器和 PCK。
 
 ```powershell
-# 仅编译和打包
+# 编译、打包并同步工坊上传目录
 powershell -ExecutionPolicy Bypass -File .\build.ps1
 # 关闭游戏后编译并安装
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install
@@ -204,18 +205,18 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 ```
 
-脚本支持 -GameDir、-RitsuLibDir 和 -RitsuCompatVersion 覆盖路径及适配版本。默认引用 RitsuLib 的 compat/0.107.1 分支。构建时必须使用目标游戏版本的程序集；其他游戏版本需使用对应的 RitsuLib 适配分支并重新检查兼容性。
+脚本支持 -GameDir、-RitsuLibDir 和 -RitsuCompatVersion 覆盖路径及适配版本。默认引用 RitsuLib 的 compat/0.111.0 分支。构建时必须使用目标游戏版本的程序集；其他游戏版本需使用对应的 RitsuLib 适配分支并重新检查兼容性。
 
 兼容接口检查：`pwsh -File .\tests\Verify-Compatibility.ps1`。此检查不启动游戏、不修改存档，不能替代实机验证。
 
-安装目录：`E:\SteamLibrary\steamapps\common\Slay the Spire 2\mods\DrawPeek`，包含 DrawPeek.dll 和 DrawPeek.json。
+安装目录：`G:\SteamLibrary\steamapps\common\Slay the Spire 2\mods\DrawPeek`，包含 DrawPeek.dll 和 DrawPeek.json。
 
 关闭游戏后移除 mods\DrawPeek 可卸载。
 
 ## 文件与命名
 
 - 稳定 Mod ID、程序集名、命名空间：DrawPeek。
-- 显示名称：抽牌预览 (Draw Peek)，版本：1.8.2。
+- 显示名称：抽牌预览 (Draw Peek)，版本：1.9.0。
 - Source/ModEntry.cs：入口、设置页面注册、日志。
 - Source/Settings.cs：开关持久化。
 - Source/CombatOverlay.cs：战斗悬浮界面、只读预览与生命周期。
@@ -242,9 +243,9 @@ v1.5.2 publishing correction: condensed the bilingual Workshop description while
 
 Workshop visibility defaults to public (`public`) and is applied to the Steam item on the next successful upload.
 
-启动 Steam 并登录发布账号后，双击 `E:\software\ModUploader\UploadDrawPeek.bat`。脚本上传同目录的 `DrawPeekWorkshop`，结束后显示退出码并用 `pause` 保留窗口。工程根目录保存脚本副本；实际使用时应放在 `ModUploader.exe` 旁边。
+启动 Steam 并登录发布账号后，双击 `G:\project\SlaytheSpire2Demo\ModUploader\UploadDrawPeek.bat`。脚本上传同目录的 `DrawPeekWorkshop`，结束后显示退出码并用 `pause` 保留窗口。工程根目录保存脚本副本；实际使用时应放在 `ModUploader.exe` 旁边。
 
-Start Steam and sign in to the publishing account, then double-click `E:\software\ModUploader\UploadDrawPeek.bat`. It uploads the adjacent `DrawPeekWorkshop`, displays the exit code, and pauses before closing. A copy is kept in the project; place it beside `ModUploader.exe` to use it.
+Start Steam and sign in to the publishing account, then double-click `G:\project\SlaytheSpire2Demo\ModUploader\UploadDrawPeek.bat`. It uploads the adjacent `DrawPeekWorkshop`, displays the exit code, and pauses before closing. A copy is kept in the project; place it beside `ModUploader.exe` to use it.
 
 也可在上传工具目录手动执行 / Or run in the uploader directory:
 
@@ -256,3 +257,25 @@ Start Steam and sign in to the publishing account, then double-click `E:\softwar
 工坊文案已精简，移除上传脚本维护说明及待实机验证措辞；实际检查记录保留在 `VALIDATION.md`。
 
 Workshop copy has been streamlined by removing upload-script maintenance notes and pending in-game validation wording. Check records remain in `VALIDATION.md`.
+
+## 发布目录同步 / Release workspace synchronization
+
+每次更新后运行 `powershell -ExecutionPolicy Bypass -File .\build.ps1`。成功构建后自动将 DLL、模组 JSON 和工坊配置同步到相邻的 `..\ModUploader\DrawPeekWorkshop`，校验版本与 SHA-256，并检查简介小于 8000 UTF-8 字节。可用 `-WorkshopDir` 指定其他已有上传工作区；缺失工作区或校验失败会报错，不会显示同步成功。直接执行 `dotnet build` 不触发同步。
+
+工坊简介和更新说明以工程根目录 `workshop.json` 为准；标题、可见性、标签、依赖及其他字段保留上传目录里的设置，并回写工程配置。现有 `mod_id.txt`、封面和截图保留，继续更新原条目。构建不会上传 Steam；准备好后双击上传工具目录的 `UploadDrawPeek.bat`。本次为发布流程维护，模组版本保持 1.8.2。
+
+Run `build.ps1` after each update to build, package, and synchronize DLL/manifest/Workshop configuration to the sibling `ModUploader/DrawPeekWorkshop` workspace. Versions, SHA-256 hashes, and the description size are checked. Override the existing workspace with `-WorkshopDir`. Missing workspaces or failed checks stop synchronization. Direct `dotnet build` does not synchronize.
+
+Release text comes from the project's `workshop.json`; publisher-managed fields are preserved from the upload workspace and written back to the project. The existing item ID, cover, and screenshots remain intact. Builds never upload to Steam: run the uploader's `UploadDrawPeek.bat` separately when ready. This publishing workflow maintenance retains mod version 1.8.2.
+
+## 1.8.3
+
+- 修复抽牌或从抽牌堆直接打出牌时预览闪烁：结算期间保留已有牌面，结束后直接刷新。首次打开且尚无稳定牌面时等待结算；新战斗不沿用旧牌面。结算后空牌堆仍收起。
+- Fixed preview flicker during draws and plays from the draw pile: retain existing faces during resolution, then refresh in place. First use waits for a stable preview; new combats never reuse old faces. Settled empty piles still hide the row.
+
+
+## 安装偏好 / Installation preference
+
+更新默认只编译、检查并同步工坊上传目录，不自动安装到游戏目录。只有用户明确要求安装时才执行安装；退出游戏不代表授权安装。
+
+Updates only build, validate, and synchronize the Workshop upload workspace by default. Installation into the game requires an explicit user request; closing the game does not authorize installation.

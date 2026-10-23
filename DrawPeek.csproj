@@ -3,10 +3,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.8.2</Version>
-    <GameDir Condition="'$(GameDir)' == ''">E:\SteamLibrary\steamapps\common\Slay the Spire 2</GameDir>
-    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">E:\SteamLibrary\steamapps\workshop\content\2868840\3747602295</RitsuLibDir>
-    <RitsuCompatVersion Condition="'$(RitsuCompatVersion)' == ''">0.107.1</RitsuCompatVersion>
+    <Version>1.9.0</Version>
+    <GameDir Condition="'$(GameDir)' == ''">G:\SteamLibrary\steamapps\common\Slay the Spire 2</GameDir>
+    <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">G:\SteamLibrary\steamapps\workshop\content\2868840\3747602295</RitsuLibDir>
+    <RitsuCompatVersion Condition="'$(RitsuCompatVersion)' == ''">0.111.0</RitsuCompatVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="sts2" HintPath="$(GameDir)/data_sts2_windows_x86_64/sts2.dll" Private="false" />

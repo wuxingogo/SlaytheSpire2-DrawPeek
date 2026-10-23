@@ -1,5 +1,5 @@
 param(
-    [string]$GameDir = 'E:\SteamLibrary\steamapps\common\Slay the Spire 2',
+    [string]$GameDir = 'G:\SteamLibrary\steamapps\common\Slay the Spire 2',
     [string]$ModDll = (Join-Path $PSScriptRoot '..\dist\DrawPeek\DrawPeek.dll')
 )
 $ErrorActionPreference = 'Stop'

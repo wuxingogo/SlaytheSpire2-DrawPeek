@@ -61,6 +61,7 @@ internal static class CombatOverlay
         string lastPreview = "";
         bool failed = false;
         string lastVisibility = "";
+        object? previewCombatState = null;
         void Refresh()
         {
             try
@@ -95,10 +96,11 @@ internal static class CombatOverlay
                 var hoverArea = button.GetGlobalRect();
                 if (expanded) hoverArea = hoverArea.Merge(panel.GetGlobalRect());
                 expanded = button.ButtonPressed || hoverArea.HasPoint(button.GetGlobalMousePosition());
-                panel.Visible = expanded;
+                panel.Visible = expanded && row.HasCards;
                 if (!expanded) return;
                 if (choosingNode)
                 {
+                    previewCombatState = null;
                     ShowPreview(OpeningHandPreview.BuildCards(), PileType.Deck);
                     return;
                 }
@@ -110,10 +112,17 @@ internal static class CombatOverlay
                     ShowPreview(Array.Empty<CardModel?>(), PileType.Draw);
                 else
                 {
-                    // Do not sample partial piles or an already-advanced shuffle
-                    // RNG while a command is still transferring cards.
-                    if (GameCompat.IsPreviewSettling(player)) { panel.Visible = false; return; }
-                    ShowPreview(CombatDrawPreview.Build(player, 5), PileType.Draw);
+                    // Never carry a previous combat or map preview into a new combat.
+                    if (!ReferenceEquals(previewCombatState, state))
+                    {
+                        previewCombatState = state;
+                        ShowPreview(Array.Empty<CardModel?>(), PileType.Draw);
+                    }
+                    // Keep the last rendered clones during resolution. Sampling
+                    // partial piles causes flicker and misleading intermediate order.
+                    if (GameCompat.IsPreviewSettling(player)) return;
+                    var forecast = CombatDrawPreview.Build(player);
+                    ShowPreview(forecast.Cards, PileType.Draw, forecast.ShuffleIndex);
                 }
             }
             catch (Exception ex)
@@ -129,9 +138,10 @@ internal static class CombatOverlay
                 Math.Clamp(button.Position.X + button.Size.X - panel.Size.X, 12, Math.Max(12, bounds.X - panel.Size.X - 12)),
                 Math.Clamp(button.Position.Y + button.Size.Y + 10, 12, Math.Max(12, bounds.Y - panel.Size.Y - 12)));
         }
-        void ShowPreview(IReadOnlyList<CardModel?> cards, PileType pile)
+        void ShowPreview(IReadOnlyList<CardModel?> cards, PileType pile, int shuffleIndex = -1)
         {
-            row.Show(cards, pile, root.Size - new Vector2(24, button.Position.Y + button.Size.Y + 34));
+            row.Show(cards, pile, root.Size - new Vector2(24, button.Position.Y + button.Size.Y + 34), shuffleIndex);
+            panel.Visible = expanded && row.HasCards;
             PlacePanel();
             string preview = pile + ": " + string.Join(", ", cards.Select(c => c?.Id.ToString() ?? "card back"));
             if (lastPreview != preview) { lastPreview = preview; ModEntry.Log("Preview: " + preview); }

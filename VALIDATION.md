@@ -179,3 +179,24 @@
 - 更新既有 Verify-CombatReshuffle.ps1 为暂停预测的回归检查：抽牌堆 0/1/3/5/7 张时，即使手牌、弃牌堆、打出区与消耗堆各有 7 张，也只显示已知抽牌堆前缀，无占位，无牌堆修改。检查通过。
 - v0.111.0 + RitsuLib compat/0.111.0 Release 构建通过，0 错误、2 条 NU1900 警告（漏洞服务不可达）；版本 1.8.2，双语简介 7924 UTF-8 字节，小于 8000。未进行新一轮实机 UI 或 v0.107.1 验证。
 - Suspended combat reshuffle prediction and show only the known draw-pile prefix, without discarded cards or placeholders. Existing empty-row handling and async resolution guards restore the view after actual shuffles. Build and focused known-pile regression checks passed; live UI was not revalidated.
+
+## 发布目录迁移与构建同步（2026-10-23）
+
+- 更新本机路径到 G 盘，默认以游戏 v0.111.0 和 RitsuLib compat/0.111.0 构建。build.ps1 成功打包后调用 Sync-Workshop.ps1，同步到相邻 ModUploader/DrawPeekWorkshop；保留原工坊 ID 3824980334、封面、截图及发布者配置字段。
+- Release 构建通过，0 警告、0 错误。DLL/manifest SHA-256 一致；两份 workshop.json 均可解析且哈希一致，简介 7926 UTF-8 字节。Windows PowerShell 同步入口复验通过。未上传 Steam、未安装到游戏或进行实机验证。
+- Verify-CombatReshuffle.ps1 通过；Verify-Compatibility.ps1 第 16 行失败：旧检查使用的 Rng 构造函数在本机程序集不存在。此检查需另行适配，不能据此声称全部兼容检查通过。本次没有修改游戏预测逻辑。
+- Migrated local paths and added automatic post-build Workshop synchronization. Release build, package/config hash checks, Windows PowerShell synchronization, and known-draw-pile regression passed. The legacy compatibility test failed at its RNG constructor lookup. No Steam upload or live game validation was performed.
+## v1.8.3 预览结算闪烁修复（2026-10-23）
+
+- CombatOverlay 不再在 IsPreviewSettling 时隐藏面板，保留已经渲染的卡牌副本，稳定后刷新。不读取结算中间牌堆；没有缓存时不显示空面板。新 PlayerCombatState 清空旧预览，地图起手不会充当新战斗的缓存。
+- Release 编译 0 警告、0 错误。抽牌异步生命周期与已知牌堆回归检查通过；这些检查不覆盖 Godot 实机画面。发布目录 DLL/JSON 与工坊配置同步校验通过，简介 7787 UTF-8 字节，原工坊 ID 保留。
+- 游戏仍运行，未替换游戏安装目录文件，未进行煎饼打击或破灭的实机验证，未上传 Steam。
+- Kept the last rendered clones visible during resolution and refreshed after settling, with cache isolation across combats and no blank initial panel. Build and existing async lifecycle/known-pile regressions passed. Workshop staging was synchronized. The running game was not replaced; live UI verification and Steam upload were not performed.
+## v1.9.0 下一回合数量与洗牌分隔（2026-10-23）
+
+- 恢复原版 StableShuffle 的副本预测，支持 PerfectFit；以当前结束回合为基础追加普通手牌，排除保留和虚无，敌方回合不再次弃手牌。未知洗牌规则和特殊回合末手牌效果使洗牌部分显示卡背。不执行真实结算，不改真实随机数或牌堆。
+- NextDrawCount 读取原版已支持能力/遗物的未来抽牌规则：DrawCardsNextTurn、Clarity、MachineLearning、ToolsOfTheTrade、Demesne、Tyranny、MindRot，Fiddle、PaelsBlood、SneckoEye、RingOfTheDrake、Pendulum、PollinousCore、Pocketwatch；计算下一次计数并排除仅第一回合生效的加成，限制到保留手牌后的空位。第三方效果、完整回合末/敌方/抽牌触发链和联机 RNG 后续变化不在完整模拟范围。
+- DrawForecast 传递洗牌边界；DrawCardRow 在两组均非空时预留 16 像素间隔并绘制 2 像素竖线。全部来自同一组时无分隔线。保持 v1.8.3 结算期间上一帧持续显示。
+- Release 构建 0 警告、0 错误；360 组原版洗牌/数量/边界/随机数隔离检查、PerfectFit 原版 hook 对照、手牌投影及抽牌增减/上限/遗物计数检查通过。异步抽牌生命周期回归和 600 组地图起手对照通过。
+- 已同步 ModUploader/DrawPeekWorkshop 并核对 DLL/JSON/config；简介 7910 UTF-8 字节。未安装、未启动游戏、未上传 Steam。未实机验证布局和交互，未重新验证 v0.107.1。
+- Restored cloned reshuffle forecasts with a vertical group divider and projected next-turn draw counts, respecting retained-hand capacity and supported native modifiers. Release build and shuffle/count/async/opening-hand regressions passed. Workshop staging was synchronized; no installation, live UI validation, Steam upload, or v0.107.1 revalidation was performed.

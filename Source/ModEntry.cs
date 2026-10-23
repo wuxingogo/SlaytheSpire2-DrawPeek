@@ -24,7 +24,7 @@ public static class ModEntry
                 .AddToggle("enabled", ModSettingsText.Dynamic(() => L10n.Text("启用抽牌预览", "Enable Draw Peek")),
                     new ModSettingsCallbackValueBinding<bool>(Id, "enabled", SaveScope.Global,
                         () => Settings.Enabled, Settings.SetEnabled, Settings.Save),
-                    ModSettingsText.Dynamic(() => L10n.Text("控制战斗中当前抽牌堆的已知牌序，以及地图选点时的下一场基础起手预览。", "Show the known next cards in the current combat draw pile and the next combat base opening hand while choosing map nodes.")))
+                    ModSettingsText.Dynamic(() => L10n.Text("控制下一回合抽牌与洗牌预览，以及地图选点时的下一场基础起手预览。", "Show expected next-turn draws including reshuffles, and the next combat base opening hand on the map.")))
                 .AddToggle("mapPredictionEnabled", ModSettingsText.Dynamic(() => L10n.Text("启用地图预测", "Enable Map Predictions")),
                     new ModSettingsCallbackValueBinding<bool>(Id, "mapPredictionEnabled", SaveScope.Global,
                         () => Settings.MapPredictionEnabled, Settings.SetMapPredictionEnabled, Settings.Save),
@@ -34,7 +34,7 @@ public static class ModEntry
                         () => Settings.EventPredictionEnabled, Settings.SetEventPredictionEnabled, Settings.Save),
                     ModSettingsText.Dynamic(() => L10n.Text("悬停受支持的事件按钮或变化选牌目标，显示随机升级、变化及受支持随机获牌的结果。", "Hover supported event buttons or transformation targets to preview random upgrade, transformation, and supported random card rewards.")))));
         new Harmony("local.drawpeek").PatchAll(typeof(ModEntry).Assembly);
-        Log($"Initialized v1.8.2; settings registered; enabled={Settings.Enabled}; map={Settings.MapPredictionEnabled}; event={Settings.EventPredictionEnabled}");
+        Log($"Initialized v1.9.0; settings registered; enabled={Settings.Enabled}; map={Settings.MapPredictionEnabled}; event={Settings.EventPredictionEnabled}");
     }
 
     internal static void Log(string message)

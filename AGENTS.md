@@ -4,8 +4,14 @@
 
 - 每次修改本工程内容，都必须在同一次任务中同步修改 `README.md` 和工程根目录 `workshop.json` 的 `description`。包括功能、修复、资源、构建、配置及文档维护；纯维护变更也应简要说明。
 - README 与工坊简介均需包含对应的中文和英文说明。面向玩家说明最终行为、使用方法、依赖与兼容性变化，不把编译通过表述为已完成实机验证。
-- 工程根目录 `workshop.json` 是工坊配置的受版本管理源文件。同步到 `E:\software\ModUploader\DrawPeekWorkshop\workshop.json`，完成后解析 JSON 并验证两份文件内容一致。
+- 工程根目录 `workshop.json` 是工坊配置的受版本管理源文件。同步到 `G:\project\SlaytheSpire2Demo\ModUploader\DrawPeekWorkshop\workshop.json`，完成后解析 JSON 并验证两份文件内容一致。
 - 修改前读取外部发布配置，保留用户调整的标题、可见性、标签、依赖等非本次修改字段；只更新任务相关字段。保留外部 `mod_id.txt`，不得重新创建工坊条目。
 - 如外部工作区无法访问或写入受限，先完成工程内文档和配置；明确报告外部同步未完成，不得声称已同步或已发布。
 - 发布功能或修复时，同步版本号（csproj、模组 JSON、初始化日志、README 与工坊简介）以及对应双语更新记录。编译后同步 DLL/JSON 到发布工作区并校验哈希。
 - 上传 Steam 创意工坊与整理发布文件是独立操作；仅在用户明确要求上传时执行上传。
+
+- 每次更新后运行 build.ps1，自动同步相邻 ModUploader/DrawPeekWorkshop；禁止只更新 dist 后遗漏发布目录。同步后核对 DLL/JSON 哈希与现有 mod_id.txt。
+
+## 用户安装偏好
+
+- 永远不要自动安装最新版到游戏目录。更新任务默认仅编译、检查和同步工坊上传目录；即使游戏已退出也不能推定允许安装。只有用户明确要求安装时，才使用 -Install、-Launch 或复制文件到游戏 mods 目录。

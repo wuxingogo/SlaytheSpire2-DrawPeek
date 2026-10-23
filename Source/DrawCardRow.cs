@@ -12,11 +12,15 @@ internal sealed class DrawCardRow
 {
     private readonly Control panel;
     private readonly List<(Control View, NCard? Card)> slots = new();
+    internal bool HasCards => slots.Count > 0;
+    private ColorRect? divider;
 
     internal DrawCardRow(Control panel) => this.panel = panel;
 
-    internal void Show(IReadOnlyList<CardModel?> cards, PileType pile, Vector2 available)
+    internal void Show(IReadOnlyList<CardModel?> cards, PileType pile, Vector2 available, int shuffleIndex = -1)
     {
+        bool split = shuffleIndex > 0 && shuffleIndex < cards.Count;
+        if (divider != null) divider.Visible = split;
         bool rebuild = cards.Count != slots.Count
             || cards.Where((card, i) => (card == null) != (slots[i].Card == null)).Any();
         if (rebuild)
@@ -56,7 +60,8 @@ internal sealed class DrawCardRow
 
         var size = new Vector2(slots.Max(s => s.View.Size.X), slots.Max(s => s.View.Size.Y));
         const float padding = 12;
-        float width = Math.Max(1, available.X - padding * 2);
+        float separatorWidth = split ? 16 : 0;
+        float width = Math.Max(1, available.X - padding * 2 - separatorWidth);
         float height = Math.Max(1, available.Y - padding * 2);
         // Compress gaps first, then scale all cards equally; never wrap or crop.
         float scale = Math.Min(0.72f, Math.Min(height / size.Y, width / (size.X * cards.Count)));
@@ -64,9 +69,20 @@ internal sealed class DrawCardRow
         for (int i = 0; i < slots.Count; i++)
         {
             slots[i].View.Scale = Vector2.One * scale;
-            slots[i].View.Position = new Vector2(padding + i * (size.X * scale + gap), padding);
+            slots[i].View.Position = new Vector2(padding + i * (size.X * scale + gap) + (split && i >= shuffleIndex ? separatorWidth : 0), padding);
         }
-        panel.Size = new Vector2(padding * 2 + size.X * scale * cards.Count + gap * (cards.Count - 1), padding * 2 + size.Y * scale);
+        panel.Size = new Vector2(padding * 2 + size.X * scale * cards.Count + gap * (cards.Count - 1) + separatorWidth, padding * 2 + size.Y * scale);
+        if (split)
+        {
+            if (divider == null)
+            {
+                divider = new ColorRect { Color = new Color("b79c60"), MouseFilter = Control.MouseFilterEnum.Ignore };
+                panel.AddChild(divider);
+            }
+            divider.Visible = true;
+            divider.Position = new Vector2(padding + shuffleIndex * (size.X * scale + gap) - gap / 2 + separatorWidth / 2 - 1, padding);
+            divider.Size = new Vector2(2, size.Y * scale);
+        }
     }
 
     private static Control CreateBack()

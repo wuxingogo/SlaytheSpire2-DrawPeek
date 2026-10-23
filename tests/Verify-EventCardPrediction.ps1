@@ -1,4 +1,4 @@
-param([string]$GameDir='E:\SteamLibrary\steamapps\common\Slay the Spire 2')
+param([string]$GameDir='G:\SteamLibrary\steamapps\common\Slay the Spire 2')
 $ErrorActionPreference='Stop'
 $data=Join-Path $GameDir 'data_sts2_windows_x86_64'
 [System.Reflection.Assembly]::LoadFrom((Join-Path $data 'GodotSharp.dll')) | Out-Null

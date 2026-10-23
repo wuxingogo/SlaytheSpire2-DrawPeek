@@ -26,7 +26,7 @@ public static class ModEntry
                         () => Settings.Enabled, Settings.SetEnabled, Settings.Save),
                     ModSettingsText.Dynamic(() => L10n.Text("关闭后隐藏抽牌图标和地图奖励预览；再次开启无需重启游戏。", "Disabling hides the card icon and map reward previews. Enable again without restarting the game.")))));
         new Harmony("local.drawpeek").PatchAll(typeof(ModEntry).Assembly);
-        Log("Initialized v1.3.2; settings registered; enabled=" + Settings.Enabled);
+        Log("Initialized v1.4.0; settings registered; enabled=" + Settings.Enabled);
     }
 
     internal static void Log(string message)

@@ -106,7 +106,7 @@ internal static class MapPreview
         if (point.PointType == MapPointType.Unknown)
         {
             var source = run.Odds.UnknownMapPoint;
-            var odds = new UnknownMapPointOdds(new Rng(run.Rng.UnknownMapPoint.ToSerializable())) {
+            var odds = new UnknownMapPointOdds(GameCompat.CloneRng(run.Rng.UnknownMapPoint)) {
                 MonsterOdds = source.MonsterOdds, EliteOdds = source.EliteOdds,
                 TreasureOdds = source.TreasureOdds, ShopOdds = source.ShopOdds };
             type = odds.Roll(RunManager.BuildRoomTypeBlacklist(run.CurrentMapPointHistoryEntry, point.Children), run);
@@ -135,7 +135,7 @@ internal static class MapPreview
                 lines.Add(next == null ? L10n.Text("事件尚不可确定", "Event not yet determined") : L10n.Text("事件：", "Event: ") + next.Title.GetFormattedText());
                 break;
             case RoomType.Treasure:
-                var rng = new Rng(run.Rng.TreasureRoomRelics.ToSerializable());
+                var rng = GameCompat.CloneRng(run.Rng.TreasureRoomRelics);
                 var bag = RelicGrabBag.FromSerializable(run.SharedRelicGrabBag.ToSerializable());
                 foreach (var recipient in run.Players) {
                     if (!Hook.ShouldGenerateTreasure(run, recipient)) continue;
@@ -154,9 +154,9 @@ internal static class MapPreview
     {
         var encounter = run.Act.PullNextEncounter(type); // Reads the queue; does not advance it.
         lines.Add(RoomName(type) + L10n.Text("胜利后的基础奖励：", " — Base victory rewards:"));
-        var rng = new Rng(player.PlayerRng.Rewards.ToSerializable());
+        var rng = GameCompat.CloneRng(player.PlayerRng.Rewards);
         var potionOdds = new PotionRewardOdds(player.PlayerOdds.PotionReward.CurrentValue, rng);
-        bool potion = potionOdds.Roll(player, type);
+        bool potion = GameCompat.RollPotion(potionOdds, player, run, type);
         int gold = rng.NextInt(encounter.MinGoldReward, encounter.MaxGoldReward + 1);
         lines.Add(L10n.Text($"基础金币：{gold}", $"Base gold: {gold}"));
         lines.Add(potion ? L10n.Text("药水：", "Potion: ") + PotionFactory.CreateRandomPotionOutOfCombat(player, rng).Title.GetFormattedText() : L10n.Text("药水：无", "Potion: none"));
@@ -177,12 +177,12 @@ internal static class MapPreview
             var contextRng = (Rng)rngSet.GetType().GetProperty("Rewards")!.GetValue(rngSet)!;
             // Replay only the base reward rolls on this independent context in the game's generation order.
             var contextOdds = (PotionRewardOdds)contextType.GetProperty("PotionRewardOdds")!.GetValue(context)!;
-            bool contextPotion = contextOdds.Roll(player, type);
+            bool contextPotion = GameCompat.RollPotion(contextOdds, player, run, type);
             contextRng.NextInt(encounter.MinGoldReward, encounter.MaxGoldReward + 1);
             if (contextPotion) PotionFactory.CreateRandomPotionOutOfCombat(player, contextRng);
             var predictor = contextType.Assembly.GetType("RandomForeseer.RandomForeseerCode.OutOfCombat.CardRewardPrediction")!;
             var method = predictor.GetMethods(BindingFlags.Public | BindingFlags.Static).Single(m => m.Name == "PredictCards" && m.GetParameters()[0].ParameterType == contextType);
-            var cards = (IEnumerable<CardModel>)method.Invoke(null, new object?[] { context, 3, CardCreationOptions.ForRoom(player, type).WithFlags(CardCreationFlags.IsFromCombat), null, null })!;
+            var cards = (IEnumerable<CardModel>)method.Invoke(null, new object?[] { context, 3, CardCreationOptions.ForRoom(player, type).WithFlags(GameCompat.CombatCardFlags), null, null })!;
             lines.Add(L10n.Text("卡牌候选：\n", "Card choices:\n") + string.Join('\n', cards.Select(c => "• " + c.Title)));
             if (type == RoomType.Elite) {
                 var relic = RelicGrabBag.FromSerializable(player.RelicGrabBag.ToSerializable()).PullFromFront(RelicFactory.RollRarity(contextRng), run) ?? RelicFactory.FallbackRelic;
@@ -198,7 +198,7 @@ internal static class MapPreview
         var used = new HashSet<ModelId>();
         var odds = new CardRarityOdds(player.PlayerOdds.CardRarity.CurrentValue, rng);
         for (int i = 0; i < 3; i++) {
-            var options = CardCreationOptions.ForRoom(player, roomType).WithFlags(CardCreationFlags.IsFromCombat);
+            var options = CardCreationOptions.ForRoom(player, roomType).WithFlags(GameCompat.CombatCardFlags);
             options = Hook.ModifyCardRewardCreationOptions(player.RunState, player, options);
             var pool = options.GetPossibleCards(player).Where(c => !used.Contains(c.Id) &&
                 c.MultiplayerConstraint != (player.RunState.Players.Count > 1 ? CardMultiplayerConstraint.SingleplayerOnly : CardMultiplayerConstraint.MultiplayerOnly)).ToArray();

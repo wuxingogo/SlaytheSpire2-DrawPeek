@@ -6,7 +6,7 @@
 
 | 项目 | 是否必需 | 说明 |
 | --- | --- | --- |
-| 《杀戮尖塔2》 | 必需 | 当前版本适配并测试于游戏 v0.111.0；其他版本需重新确认兼容性。 |
+| 《杀戮尖塔2》 | 必需 | 最低目标版本 v0.107.1；已通过该版本编译和兼容接口检查，尚未完成实机验证。v0.111.0 为此前实机测试环境，本次改动尚未在该版本回归。 |
 | RitsuLib（Mod ID：STS2-RitsuLib） | 必需 | 最低版本 0.6.9，且须与游戏版本兼容。在 Steam 创意工坊订阅并在游戏中启用。DrawPeek 的设置页面和开关依赖它，未安装或未启用时无法正常加载。 |
 | DrawPeek（抽牌预览） | 必需 | 安装并启用本模组；手动安装时，将 DrawPeek.dll 和 DrawPeek.json 一起放入游戏目录的 mods/DrawPeek 文件夹。 |
 | RandomForeseer（随机数预测） | 可选 | 不安装也能使用顶部悬停抽牌预览和内置的基础地图奖励预测。已加载且接口兼容时，会优先使用它增强卡牌奖励预测。 |
@@ -43,6 +43,15 @@
 
 ## 更新记录 / Changelog
 
+### 1.4.0
+
+- 新增游戏 v0.107.1 兼容处理，最低版本调整为 0.107.1；需安装并启用支持对应游戏版本的 RitsuLib 0.6.9 或以上版本。
+- 适配旧版随机数复制、药水奖励计算与战斗卡牌标记；保留新接口的运行时识别路径。
+- v0.107.1 构建与兼容接口检查通过，900 次随机抽取验证通过；尚未实机验证奖励预测或回归 v0.111.0。
+- Added compatibility handling for game v0.107.1 and lowered the minimum game version to 0.107.1. Requires RitsuLib 0.6.9 or later with support for the selected game version.
+- Adapted RNG cloning, potion reward rolls, and combat card flags for older APIs while retaining runtime detection of newer APIs.
+- Build and compatibility checks passed against v0.107.1, including 900 matching RNG draws. In-game reward predictions and v0.111.0 regression testing remain unverified.
+
 ### 1.3.2
 
 - 修复顶栏卡牌图标被遮挡的问题。
@@ -63,7 +72,7 @@
 
 ## 环境
 
-本机适配游戏 v0.111.0，依赖 RitsuLib 0.6.9。自行构建需要支持 net9.0 目标框架的 .NET SDK（本机使用 .NET SDK 10.0.101）、本机游戏程序集和 RitsuLib 程序集。无需 Godot 编辑器和 PCK。
+当前构建基准为本机游戏 v0.107.1，依赖 RitsuLib 0.6.9。自行构建需要支持 net9.0 目标框架的 .NET SDK（本机使用 .NET SDK 10.0.203）、本机游戏程序集和 RitsuLib 程序集。无需 Godot 编辑器和 PCK。
 
 ```powershell
 # 仅编译和打包
@@ -74,7 +83,9 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Install
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 ```
 
-脚本支持 -GameDir 和 -RitsuLibDir 覆盖路径。框架引用 compat/0.111.0 分支；游戏或框架 API 更新后需重新检查兼容性。
+脚本支持 -GameDir、-RitsuLibDir 和 -RitsuCompatVersion 覆盖路径及适配版本。默认引用 RitsuLib 的 compat/0.107.1 分支。构建时必须使用目标游戏版本的程序集；其他游戏版本需使用对应的 RitsuLib 适配分支并重新检查兼容性。
+
+兼容接口检查：`pwsh -File .\tests\Verify-Compatibility.ps1`。此检查不启动游戏、不修改存档，不能替代实机验证。
 
 安装目录：`E:\SteamLibrary\steamapps\common\Slay the Spire 2\mods\DrawPeek`，包含 DrawPeek.dll 和 DrawPeek.json。
 
@@ -83,7 +94,7 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 ## 文件与命名
 
 - 稳定 Mod ID、程序集名、命名空间：DrawPeek。
-- 显示名称：抽牌预览 (Draw Peek)，版本：1.3.2。
+- 显示名称：抽牌预览 (Draw Peek)，版本：1.4.0。
 - Source/ModEntry.cs：入口、设置页面注册、日志。
 - Source/Settings.cs：开关持久化。
 - Source/CombatOverlay.cs：战斗悬浮界面、只读预览与生命周期。
@@ -96,3 +107,16 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Launch
 游戏日志：`%APPDATA%\SlayTheSpire2\logs\godot.log`
 
 设置接口参考：[RitsuLib 官方文档](https://sts2-ritsulib.ritsukage.com/guide/mod-settings)。实际编译引用本机框架程序集。
+
+
+## 上传创意工坊 / Workshop upload
+
+启动 Steam 并登录发布账号后，双击 `E:\software\ModUploader\UploadDrawPeek.bat`。脚本上传同目录的 `DrawPeekWorkshop`，结束后显示退出码并用 `pause` 保留窗口。工程根目录保存脚本副本；实际使用时应放在 `ModUploader.exe` 旁边。本次仅添加上传快捷脚本，不改变模组功能。
+
+Start Steam and sign in to the publishing account, then double-click `E:\software\ModUploader\UploadDrawPeek.bat`. It uploads the adjacent `DrawPeekWorkshop`, displays the exit code, and pauses before closing. A copy is kept in the project; place it beside `ModUploader.exe` to use it. This maintenance change only adds an upload shortcut and does not change mod behavior.
+
+也可在上传工具目录手动执行 / Or run in the uploader directory:
+
+```powershell
+.\ModUploader.exe upload -w ".\DrawPeekWorkshop"
+```

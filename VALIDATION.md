@@ -62,3 +62,12 @@
 - 恢复 ZIndex=100，暂停/设置子菜单、capstone 或 overlay 屏幕打开时隐藏整个预览，关闭后恢复；不清除 ButtonPressed 固定状态。
 - 订阅原版菜单变化信号即时刷新，并在退出场景时解绑，保留定时刷新兜底。
 - 使用本机游戏程序集编译成功：0 警告、0 错误。本次尚未实机验证图标、菜单与固定状态的交互。
+
+
+## v1.4.0 游戏 0.107.1 适配（2026-10-23）
+
+- 本机 release_info.json 确认当前游戏为 v0.107.1，改用 RitsuLib compat/0.107.1 引用。
+- 原代码直接编译报 7 个错误：Rng.ToSerializable 缺失、PotionRewardOdds.Roll 多一个 AscensionManager 参数、IsFromCombat 标记缺失；已在 GameCompat 中兼容。
+- Release 构建 0 警告、0 错误。tests/Verify-Compatibility.ps1 使用真实旧版游戏程序集验证 9 组 seed/counter，共 900 次序列对比，副本生成不推进原始 RNG；旧药水接口及 AscensionManager 创建检查通过。
+- 最低游戏版本设为 0.107.1。保留新版本接口运行时分支，但当前机器缺少 0.111.0 程序集，未完成本次新版本回归。
+- 未启动游戏、未修改游戏安装目录或存档；0.107.1 界面、暂停交互和奖励预测仍待实机验证。

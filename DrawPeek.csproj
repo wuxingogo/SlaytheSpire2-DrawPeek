@@ -3,15 +3,16 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.3.2</Version>
+    <Version>1.4.0</Version>
     <GameDir Condition="'$(GameDir)' == ''">E:\SteamLibrary\steamapps\common\Slay the Spire 2</GameDir>
     <RitsuLibDir Condition="'$(RitsuLibDir)' == ''">E:\SteamLibrary\steamapps\workshop\content\2868840\3747602295</RitsuLibDir>
+    <RitsuCompatVersion Condition="'$(RitsuCompatVersion)' == ''">0.107.1</RitsuCompatVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="sts2" HintPath="$(GameDir)/data_sts2_windows_x86_64/sts2.dll" Private="false" />
     <Reference Include="GodotSharp" HintPath="$(GameDir)/data_sts2_windows_x86_64/GodotSharp.dll" Private="false" />
     <Reference Include="0Harmony" HintPath="$(GameDir)/data_sts2_windows_x86_64/0Harmony.dll" Private="false" />
-    <Reference Include="STS2-RitsuLib.Runtime" HintPath="$(RitsuLibDir)/compat/0.111.0/STS2-RitsuLib.Runtime.dll" Private="false" />
+    <Reference Include="STS2-RitsuLib.Runtime" HintPath="$(RitsuLibDir)/compat/$(RitsuCompatVersion)/STS2-RitsuLib.Runtime.dll" Private="false" />
     <Reference Include="STS2-RitsuLib.Shared" HintPath="$(RitsuLibDir)/shared/STS2-RitsuLib.Shared.dll" Private="false" />
     <Reference Include="STS2-RitsuLib.Settings" HintPath="$(RitsuLibDir)/shared/STS2-RitsuLib.Settings.dll" Private="false" />
     <None Update="DrawPeek.json" CopyToOutputDirectory="PreserveNewest" />
